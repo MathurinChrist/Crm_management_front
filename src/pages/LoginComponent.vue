@@ -1,44 +1,25 @@
 <template>
   <div class="container login-content">
     <div class="society-information">
-      <AllIcon name="CrmIcon" :size="200" color="white"/>
+      <AllIcon name="CrmIcon" :size="150" color="white"/>
       <h1> Gerer vos projets et ressource en toute sécurité</h1>
     </div>
     <div class="divider"></div>
-    <div class="login-form q-pa-lg">
-      <q-form @submit.prevent="handleLogin" class="full-width">
-        <div class="icons">
-        </div>
-        <q-input v-model="email" label="Adresse Email" type="email" outlined dense class="q-mb-md" :rules="[val => !!val || 'Champ requis']"/>
-        <q-input v-model="password" label="Mot de passe" type="password" outlined dense class="q-mb-lg" :rules="[val => !!val || 'Champ requis']"/>
-
-        <q-btn label="Connexion" type="submit" color="primary" class="full-width" />
-      </q-form>
-    </div>
+    <router-view />
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
-
-import AllIcon from "components/icons/AllIcon.vue";
-
- const email = ref('')
-const password = ref('')
-
-const handleLogin = () => {
-  if (!email.value || !password.value) return
-  console.log('here')
-  }
+import AllIcon from 'components/icons/AllIcon.vue';
 </script>
 
 <style scoped>
+
 .login-content {
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: space-around;
-  width: 100vw;
   height: 100vh;
   background-image: url('../assets/background_image.jpg');
   background-size: cover;
@@ -48,6 +29,9 @@ const handleLogin = () => {
 .society-information {
   display: flex;
   align-items: center;
+  flex-direction: column;
+  gap:1px;
+  justify-content: space-between;
 
     h1 {
       font-size: 2.5rem;
@@ -66,16 +50,5 @@ const handleLogin = () => {
   width: 2px;
   height: 60%;
   background-color: #ccc;
-}
-
-.login-form {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  background-color: whitesmoke;
-  border-radius: 16px;
-  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
-  width: 450px;
 }
 </style>
