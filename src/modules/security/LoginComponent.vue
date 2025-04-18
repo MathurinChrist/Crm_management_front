@@ -1,39 +1,58 @@
 <template>
   <div class="login-form q-pa-lg">
-    <q-form @submit.prevent="handleLogin" class="full-width">
+    <q-form  class="full-width">
       <div class="icons">
       </div>
-      <q-input v-model="email" label="Adresse Email" type="email" outlined dense class="q-mb-md" :rules="[val => checkValue(val)]"/>
+      <q-input v-model="email" ref="refEmail" label="Adresse Email" type="email" outlined dense class="q-mb-md" :rules="[val => validateFieldValue(val)]"/>
       <q-input v-model="password" label="Mot de passe" type="password" outlined dense class="q-mb-lg" :rules="[val => !!val || 'Champ requis']"/>
 
-      <q-btn label="Connexion" @click="connect" color="primary" class="full-width" />
+      <q-btn label="Connexion" :loading="isLoading" @click="login" color="primary" class="full-width" />
     </q-form>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+    import { ref, onMounted} from 'vue';
+    import { useRouter } from 'vue-router'
 
-const email = ref('')
-const password = ref('')
+    import { useSecurityStore } from '../../modules/security/store/security.js'
 
-const handleLogin = () => {
-  if (!email.value || !password.value) return
-  console.log('here')
-}
+    const security = useSecurityStore()
+    const router = useRouter()
 
-const checkValue = function (val){
-  if (val === '') {
-    return 'dffdfdffdf'
-  } else {
-    return ''
-  }
-}
+    const email = ref('')
+    const refEmail = ref(null)
+    const password = ref('')
+    const isLoading = ref(false)
 
-const connect = function () {
-  let payload = { email: email.value, password: password.value }
-  console.log('la payload est', payload)
-}
+    onMounted(() => {
+      refEmail.value?.focus()
+    })
+
+    const login = () => {
+      isLoading.value = true
+      let payload = {username: email.value, password: password.value}
+      security.login(payload)
+          .then((response) => {
+            security.setToken(response.token)
+            router.push({ name: 'projects' })
+          })
+          .catch(error => console.log(error))
+        .finally(() => {
+          isLoading.value = false
+        })
+    }
+
+    const validateFieldValue = (val) => {
+      if (!val) {
+        return 'Champ requis'
+      }
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+      if (refEmail.value.type ==='email' && !emailRegex.test(val)) {
+        return 'Adresse email invalide'
+      }
+      return true
+    }
 
 
 </script>
