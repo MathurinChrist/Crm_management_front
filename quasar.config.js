@@ -2,6 +2,7 @@
 // https://v2.quasar.dev/quasar-cli-webpack/quasar-config-file
 
 import { defineConfig } from '#q-app/wrappers'
+import {config} from "dotenv";
 
 export default defineConfig((ctx) => {
   return {
@@ -23,6 +24,8 @@ export default defineConfig((ctx) => {
     // --> boot files are part of "main.js"
     // https://v2.quasar.dev/quasar-cli-webpack/boot-files
     boot: [
+        'axios',
+        'pinia'
     ],
 
     // https://v2.quasar.dev/quasar-cli-webpack/quasar-config-file#css
@@ -48,7 +51,7 @@ export default defineConfig((ctx) => {
     build: {
       // publicPath: '/',
       vueRouterMode: 'hash', // available values: 'hash', 'history'
-
+      env: config({ path: `./.env` }).parsed,
       // webpackTranspile: false,
 
       // Add dependencies for transpiling with Babel (Array of string/regex)
