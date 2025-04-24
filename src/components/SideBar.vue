@@ -8,11 +8,10 @@
   >
     <q-scroll-area class="fit">
       <q-list>
-
         <template v-for="(menuItem, index) in menuList" :key="index">
-          <q-item clickable :active="menuItem.label === 'Les projets'" v-ripple @click="goToMenuItem(menuItem?.path ?? 'projects')">
+          <q-item clickable :active="menuItem.name === currentPath" v-ripple @click="goToMenuItem(menuItem)">
             <q-item-section avatar>
-              <q-icon :name="menuItem.icon" />
+              <AllIcon :name="menuItem.icon" />
             </q-item-section>
             <q-item-section>
               {{ menuItem.label }}
@@ -28,8 +27,10 @@
 
 <script >
 import { useRoute } from 'vue-router'
+import AllIcon from 'components/icons/AllIcon.vue'
 export default {
   name: 'SideBar',
+  components: {AllIcon},
   props: {
   },
   setup(){
@@ -42,33 +43,39 @@ export default {
       drawer: false,
       menuList: [
         {
+          icon: 'DashboardIcon',
+          label: 'DashBoard',
+          name: 'dashboard',
+          separator: true
+        },
+        {
           icon: 'inbox',
           label: 'Les projets',
-          path: 'projects',
+          name: 'projects',
           separator: true
         },
         {
           icon: 'send',
           label: 'Les tâches',
-          path: 'tasks',
+          name: 'tasks',
           separator: false
         },
         {
           icon: 'delete',
           label: 'Les utilisateurs',
-          path: 'users',
+          name: 'users',
           separator: false
         },
         {
           icon: 'error',
           label: 'Les groupes',
-          path: 'groups',
+          name: 'groups',
           separator: true
         },
         {
           icon: 'settings',
           label: 'Settings',
-          path: 'Settings',
+          name: 'Settings',
           separator: false
         },
         {
@@ -84,19 +91,34 @@ export default {
           path: 'help',
           separator: false
         }
-      ]
+      ],
+      pathName: null
     }
   },
 
   computed: {
+    currentPath () {
+      return this.pathName
+    }
   },
   methods: {
-    goToMenuItem(path = 'mathurin') {
-      this.$router.push({ name: path })
+    init () {
+      this.pathName = 'dashboard'
+    },
+    goToMenuItem(menuItem) {
+     this.$router.push({ name: menuItem.name })
+    }
+  },
+  watch: {
+    '$route.name'(newPathName) {
+      if (newPathName) {
+        this.pathName = newPathName
+      }
     }
   },
   mounted() {
-    this.goToMenuItem('projects')
+    this.init()
+    this.goToMenuItem('dashboard')
   }
 }
 
