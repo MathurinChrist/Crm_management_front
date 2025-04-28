@@ -31,13 +31,24 @@
 
     const login = () => {
       isLoading.value = true
-      let payload = {username: email.value, password: password.value}
+
+      const payload = {
+        username: email.value,
+        password: password.value
+      }
+
       security.login(payload)
-          .then((response) => {
-            security.setToken(response.token)
-            router.push({ name: 'projects' })
-          })
-          .catch(error => console.log(error))
+        .then(response => {
+          security.setToken(response.token)
+          return security.getMe()
+        })
+        .then(data => {
+          security.setCurrentUser(data.user)
+          router.push({ name: 'dashboard' })
+        })
+        .catch(error => {
+          console.error('Erreur de connexion :', error)
+        })
         .finally(() => {
           isLoading.value = false
         })

@@ -2,7 +2,6 @@
   <div class="q-pa-md">
     <q-layout view="hHh Lpr lff" container  class="full-page shadow-2">
       <HeaderPage/>
-
     <SideBar :drawer="drawer" />
     <q-page-container>
       <q-page padding>
