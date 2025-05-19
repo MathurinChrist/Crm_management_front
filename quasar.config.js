@@ -24,8 +24,10 @@ export default defineConfig((ctx) => {
     // --> boot files are part of "main.js"
     // https://v2.quasar.dev/quasar-cli-webpack/boot-files
     boot: [
-        'axios',
-        'pinia'
+        'i18n',
+        // 'axios',
+        'pinia',
+        'bus'
     ],
 
     // https://v2.quasar.dev/quasar-cli-webpack/quasar-config-file#css
@@ -86,22 +88,39 @@ export default defineConfig((ctx) => {
     },
 
     // https://v2.quasar.dev/quasar-cli-webpack/quasar-config-file#framework
+    // framework: {
+    //   config: {},
+    //
+    //   // iconSet: 'material-icons', // Quasar icon set
+    //   // lang: 'en-US', // Quasar language pack
+    //
+    //   // For special cases outside of where the auto-import strategy can have an impact
+    //   // (like functional components as one of the examples),
+    //   // you can manually specify Quasar components/directives to be available everywhere:
+    //   //
+    //   // components: [],
+    //   // directives: [],
+    //
+    //   // Quasar plugins
+    //   plugins: []
+    // },
+    // quasar.config file
+
     framework: {
-      config: {},
-
-      // iconSet: 'material-icons', // Quasar icon set
-      // lang: 'en-US', // Quasar language pack
-
-      // For special cases outside of where the auto-import strategy can have an impact
-      // (like functional components as one of the examples),
-      // you can manually specify Quasar components/directives to be available everywhere:
-      //
-      // components: [],
-      // directives: [],
-
-      // Quasar plugins
-      plugins: []
+      plugins: [
+        'Notify'
+      ],
+      config: {
+        notify: {
+          position: 'top',       // 'top', 'bottom', 'left', 'right', 'center'...
+          timeout: 3000,         // durée en ms
+          textColor: 'white',    // couleur du texte
+          color: 'primary',      // couleur du fond
+          actions: [{ icon: 'close', color: 'white' }]
+        }
+      }
     },
+
 
     // animations: 'all', // --- includes all animations
     // https://quasar.dev/options/animations
