@@ -8,7 +8,7 @@ const authentication = [
     component: () => import('pages/LoginComponent.vue'),
     children: [
       { path: 'login', name: 'login', component: () => import('src/modules/security/LoginComponent.vue') },
-      { path: 'register', name: 'register', component: () => import('src/modules/security/LoginComponent.vue') },
+      { path: 'register', name: 'register', component: () => import('src/modules/security/RegisterComponent.vue') },
     ],
   },
 ]
