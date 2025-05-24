@@ -190,7 +190,6 @@ export default {
     },
     resetForm() {
       this.form = {
-        id: null,
         title: '',
         context: '',
         description: '',
