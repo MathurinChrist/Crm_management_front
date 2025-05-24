@@ -146,31 +146,14 @@ export default {
   computed: {
     projectInfos() {
       return [
-        {
-          label: 'Date de création',
-          value: this.formatDate(this.project.createdAt),
-          icon: 'event',
-          color: 'blue'
-        },
-        {
-          label: 'Tâches totales',
-          value: this.project.tasksNumber || 0,
-          icon: 'layers',
-          color: 'teal'
-        },
-        {
-          label: 'Créé par',
-          value: this.formatUser(this.project.createdBy),
-          icon: 'person',
-          color: 'orange'
-        },
-        {
-          label: 'Dernière mise à jour',
-          value: this.formatDate(this.project.updatedAt),
-          icon: 'update',
-          color: 'purple'
-        }
+        {label: 'Date de création', value: this.formatDate(this.project.createdAt), icon: 'event', color: 'blue'},
+        {label: 'Tâches totales', value: this.countersProjectTask, icon: 'layers', color: 'teal'},
+        {label: 'Créé par', value: this.formatUser(this.project.createdBy), icon: 'person', color: 'orange'},
+        {label: 'Dernière mise à jour', value: this.formatDate(this.project.updatedAt), icon: 'update', color: 'purple'}
       ]
+    },
+    countersProjectTask () {
+      return this.projectStore.getProjectTAskCounters()
     },
     tasks() {
       return this.taskStore.getTasks().map(task => ({
@@ -181,7 +164,7 @@ export default {
     filteredTasks() {
       if (this.taskTab === 'all') return this.tasks
       return this.tasks.filter(task =>
-        this.taskTab === 'todo' ? task.status === 'À faire' :
+        this.taskTab === 'todo' ? task.status === 'todo' :
           this.taskTab === 'inProgress' ? task.status === 'En cours' :
             task.status === 'Terminé'
       )
@@ -200,6 +183,7 @@ export default {
       this.tasksLoading = true
       this.taskStore.getProjectTasks(this.project?.id).then(data => {
         this.taskStore.setTasks(data.tasks ?? [])
+        this.projectStore.setCurrentProjectTasksNumber(data?.total)
       }).finally(() => {
         this.tasksLoading = false
       })

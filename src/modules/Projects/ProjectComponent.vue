@@ -1,61 +1,23 @@
 <template>
   <div class="flex column q-pa-md project-list-container">
     <div class="button-search q-mb-md animated fadeIn">
-      <q-btn
-        label="Créer un projet"
-        color="primary"
-        icon="add"
-        @click="openCreateDialog"
-        class="animated pulse delay-2s"
-        no-caps
-      />
-      <q-input
-        v-model="searchQuery"
-        label="Rechercher un projet"
-        debounce="150"
-        icon="search"
-        @keyup="filterProjects"
-        standout
-        bg-color="white"
-        class="search-input animated fadeInRight"
-      />
+      <q-btn label="Créer un projet" color="primary" icon="add" @click="openCreateDialog" class="animated pulse delay-2s" no-caps/>
+      <q-input v-model="searchQuery" label="Rechercher un projet" debounce="150" icon="search" @keyup="filterProjects" standout bg-color="white" class="search-input animated fadeInRight"/>
     </div>
 
     <div v-if="loading" class="full-height flex flex-center">
-      <q-spinner-ios
-        size="40px"
-        color="primary"
-        class="animated pulse infinite"
-      />
+      <q-spinner-ios size="40px" color="primary" class="animated pulse infinite"/>
     </div>
 
-    <q-table
-      v-else
-      flat
-      bordered
-      title="Tous les projets"
-      :rows="rows"
-      :columns="columns"
-      row-key="id"
-      binary-state-sort
-      class="project-table animated fadeInUp"
-      :grid="$q.screen.lt.md"
-      :pagination="{ rowsPerPage: 10 }"
-    >
+    <q-table v-else flat bordered title="Tous les projets" :rows="rows" :columns="columns" row-key="id" binary-state-sort class="project-table animated fadeInUp"
+             :grid="$q.screen.lt.md" :pagination="{ rowsPerPage: 10 }">
       <template v-slot:top>
         <div class="text-h5 text-weight-bold text-primary q-py-sm">
           Tous les projets
           <q-badge color="primary" align="top">{{ rows.length }}</q-badge>
         </div>
         <q-space />
-        <q-btn
-          flat
-          round
-          dense
-          icon="refresh"
-          @click="initProject"
-          class="q-mr-sm"
-        >
+        <q-btn flat round dense icon="refresh" @click="initProject" class="q-mr-sm">
           <q-tooltip>Actualiser</q-tooltip>
         </q-btn>
       </template>
@@ -173,24 +135,8 @@
 
           <q-td key="actions" :props="props">
             <div class="actions-icons">
-              <q-btn
-                dense
-                flat
-                round
-                icon="edit"
-                color="primary"
-                @click="openEditDialog(props.row)"
-                class="animated zoomIn"
-              />
-              <q-btn
-                dense
-                flat
-                round
-                icon="delete"
-                color="negative"
-                @click="confirmDelete(props.row)"
-                class="animated zoomIn"
-              />
+              <q-btn dense flat round icon="edit" color="primary" @click="openEditDialog(props.row)" class="animated zoomIn"/>
+              <q-btn dense flat round icon="delete" color="negative" @click="confirmDelete(props.row)" class="animated zoomIn"/>
             </div>
           </q-td>
         </q-tr>
@@ -250,7 +196,7 @@ function initProject() {
     rows.value = projectStore.getAllProjects().map(p => ({
       ...p,
       showDescription: false,
-      tasksCompleted: p.tasksNumber // À adapter selon votre modèle de données
+      tasksCompleted: p.tasksNumber
     }))
   }).finally(() => {
     loading.value = false

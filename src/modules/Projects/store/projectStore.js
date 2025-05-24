@@ -6,6 +6,7 @@ import {ref} from 'vue'
 export const useProjectStore = defineStore('project', () => {
   const projects = ref([])
   const currentProject = ref(null)
+  const CurrentProjectTasksNumber = ref(0)
 
   async function initProject() {
     try {
@@ -25,9 +26,12 @@ export const useProjectStore = defineStore('project', () => {
   }
 
   function setCurrentProject (project) {
-    console.log('le projet reçu est', project)
     currentProject.value = project
-    console.log('le current project est',  currentProject.value)
+    setCurrentProjectTasksNumber(project?.tasksNumber)
+  }
+
+  function setCurrentProjectTasksNumber (tasksCounters) {
+    CurrentProjectTasksNumber.value = tasksCounters
   }
 
   function getAllProjects() {
@@ -62,10 +66,17 @@ export const useProjectStore = defineStore('project', () => {
     })
   }
 
+  function getProjectTAskCounters () {
+    return CurrentProjectTasksNumber.value
+  }
+
   return {
+    CurrentProjectTasksNumber,
     currentProject,
     getCurrentProject,
+    getProjectTAskCounters,
     setCurrentProject,
+    setCurrentProjectTasksNumber,
     projects,
     deleteProject,
     createProject,
