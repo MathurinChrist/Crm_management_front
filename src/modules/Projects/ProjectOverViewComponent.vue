@@ -90,7 +90,7 @@
       </q-card-section>
     </q-card>
 
-    <ViewTaskComponent />
+    <ViewTaskComponent @refresh-task ="refreshTasks" />
     <TaskCreationComponent @task-created="refreshTasks" />
     <DeletePopup  @confirm-deleting = deleteTask() @cancel-deleting = cancelDeletingTask() v-model="taskDeleting"/>
     <q-page-sticky position="bottom-right" :offset="[18, 18]">

@@ -41,6 +41,15 @@ export const useTaskStore = defineStore('projectTask', () => {
     })
   }
 
+  function updateTask (task) {
+    const projectId = parseInt(task?.project?.id)
+    return new Promise((resolve, reject) => {
+      axiosInstance.put('/task/'+ projectId +'/update/'+task.id, task)
+        .then((response) => resolve(response?.data))
+        .catch(error => reject(error))
+    })
+  }
+
   function deleteTask (task) {
     const projectId = parseInt(getProjectIdFromTask(task))
     return new Promise((resolve, reject) => {
@@ -63,6 +72,7 @@ export const useTaskStore = defineStore('projectTask', () => {
     getCurrentTask,
     getTasks,
     createTask,
+    updateTask,
     setTasks
   }
 })
