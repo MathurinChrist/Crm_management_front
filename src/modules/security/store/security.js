@@ -13,6 +13,16 @@ export const useSecurityStore = defineStore('security', () => {
     return axiosInstance.get('/user/me').then(res => res.data)
   }
 
+  function register (payload) {
+    return new Promise((resolve, reject) => {
+       axiosInstance.post('/user/signIn', payload).then((data) => {
+         return resolve(data)
+       }).catch(data => {
+         return reject(data)
+       })
+    })
+  }
+
   function setToken(token) {
     localStorage.setItem('token', token)
   }
