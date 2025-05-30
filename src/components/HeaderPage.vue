@@ -9,7 +9,6 @@
 
       <q-space />
 
-      <!-- Actions utilisateur -->
       <div class="row items-center q-gutter-sm">
         <q-btn
           flat
@@ -58,7 +57,7 @@
 
             <q-separator />
 
-            <q-item clickable v-close-popup>
+            <q-item clickable v-close-popup @click.stop="logout">
               <q-item-section avatar>
                 <q-icon name="logout" />
               </q-item-section>
@@ -69,7 +68,6 @@
       </div>
     </q-toolbar>
 
-    <!-- Barre de progression (optionnelle) -->
     <q-linear-progress
       v-if="loading"
       indeterminate
@@ -81,19 +79,28 @@
 </template>
 
 <script>
-import { ref } from 'vue'
 import AllIcon from "components/icons/AllIcon.vue"
+import {useSecurityStore} from "src/modules/security/store/security.js";
 
 export default {
   name: 'HeaderPage',
   components: { AllIcon },
-  setup() {
-    const userName = ref('John Doe') // À remplacer par le vrai nom d'utilisateur
-    const loading = ref(false)
-
+  setup ()  {
+    const userStore = useSecurityStore()
     return {
-      userName,
-      loading
+      userStore
+    }
+  },
+  data () {
+    return {
+       username : 'John Doe',
+       loading  : false
+    }
+  },
+  methods: {
+    logout () {
+      localStorage.removeItem('token')
+      this.$router.push({name: 'login'})
     }
   }
 }
