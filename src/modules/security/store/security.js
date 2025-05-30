@@ -9,6 +9,13 @@ export const useSecurityStore = defineStore('security', () => {
     return axiosInstance.post('/login_check', payload).then(res => res.data)
   }
 
+  function logout () {
+    return new Promise((resolve, reject) => {
+      return axiosInstance.post('/logout').then(() => resolve())
+        .catch((error) => reject(error))
+    })
+  }
+
   function getMe() {
     return axiosInstance.get('/user/me').then(res => res.data)
   }
@@ -36,6 +43,8 @@ export const useSecurityStore = defineStore('security', () => {
   }
 
   return {
+    logout,
+    register,
     login,
     getMe,
     setToken,
