@@ -22,7 +22,7 @@ export const useSecurityStore = defineStore('security', () => {
 
   function register (payload) {
     return new Promise((resolve, reject) => {
-       axiosInstance.post('/user/signIn', payload).then((data) => {
+       axiosInstance.post('/user/admin/signIn', payload).then((data) => {
          return resolve(data)
        }).catch(data => {
          return reject(data)
@@ -38,6 +38,10 @@ export const useSecurityStore = defineStore('security', () => {
     return localStorage.getItem('token')
   }
 
+  function getCurrentUser () {
+    return currentUser.value
+  }
+
   function setCurrentUser(user) {
     currentUser.value = user
   }
@@ -50,7 +54,8 @@ export const useSecurityStore = defineStore('security', () => {
     setToken,
     getToken,
     setCurrentUser,
-    currentUser
+    currentUser,
+    getCurrentUser
   }
 })
 

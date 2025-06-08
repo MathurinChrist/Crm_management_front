@@ -3,7 +3,6 @@
     <div class="register-form">
       <q-form @submit.prevent="handleSubmit" class="q-gutter-md">
         <div class="text-h4 text-center q-mb-md">Créer un compte</div>
-
         <div class="row q-gutter-md">
           <q-input class="col" v-model="form.firstName" label="Prénom *" outlined :rules="[val => !!val || 'Champ obligatoire']" lazy-rules>
             <template v-slot:prepend>
