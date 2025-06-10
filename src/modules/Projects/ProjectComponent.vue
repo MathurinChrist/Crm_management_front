@@ -36,14 +36,14 @@
           >
             <div class="row items-center no-wrap">
               <q-icon
-                :name="props.row.status === 'Terminé' ? 'task_alt' : 'hourglass_empty'"
+                :name="props.row.status === 'done' ? 'task_alt' : 'hourglass_empty'"
                 :color="getStatusColor(props.row.status)"
                 size="sm"
                 class="q-mr-sm"
               />
               <span class="ellipsis">{{ props.row.name }}</span>
             </div>
-            <q-tooltip v-if="props.row.status === 'En cours'" anchor="bottom middle" self="top middle">
+            <q-tooltip v-if="props.row.status === 'todo'" anchor="bottom middle" self="top middle">
               Projet en cours
             </q-tooltip>
           </q-td>
@@ -52,8 +52,8 @@
             <q-chip
               :color="getStatusColor(props.row.status)"
               text-color="white"
-              :icon="props.row.status === 'Terminé' ? 'check' : 'schedule'"
-              :label="props.row.status"
+              :icon="props.row.status === 'done' ? 'check' : 'schedule'"
+              :label="displayNameStatus(props.row.status)"
               class="q-mb-xs animated zoomIn"
             />
           </q-td>
@@ -118,9 +118,11 @@
           <q-td key="createdBy" :props="props">
             <div class="row items-center">
               <q-avatar size="sm" color="teal" text-color="white" class="q-mr-sm">
-                {{ props.row.createdBy.firstName.charAt(0) }}{{ props.row.createdBy.lastName.charAt(0) }}
+                {{ props.row.createdBy?.firstName.charAt(0) }}{{ props.row.createdBy.lastName.charAt(0) }}
+                {{ (props.row.createdBy?.firstName ?? props.row.firstName)?.charAt(0) }}
+                {{ (props.row.createdBy?.lastName ?? props.row.lastName)?.charAt(0) }}
               </q-avatar>
-              <span>{{ props.row.createdBy.firstName }} {{ props.row.createdBy.lastName }}</span>
+              <span>{{ props.row.createdBy?.firstName ?? props.row.firstName  }} {{ props.row.lastName }}</span>
             </div>
           </q-td>
 
@@ -156,132 +158,132 @@
   </div>
 </template>
 
-<script setup>
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
-import { useProjectStore } from 'src/modules/Projects/store/projectStore.js'
-import { onMounted } from 'vue'
-import FormCreateOrUpdateProject from 'src/modules/Projects/FormCreateOrUpdateProject.vue'
-import { useTaskStore } from "src/modules/Tasks/Store/TaskStore.js";
-import { useQuasar } from 'quasar'
+<script>
+  import {useTaskStore} from 'src/modules/Tasks/Store/TaskStore.js'
+  import {useProjectStore} from 'src/modules/Projects/store/projectStore.js'
 
-const $q = useQuasar()
-const router = useRouter()
-const taskStore = useTaskStore()
-const projectStore = useProjectStore()
+  import FormCreateOrUpdateProject from 'src/modules/Projects/FormCreateOrUpdateProject.vue'
+  import {useQuasar} from "quasar";
 
-const rows = ref([])
-const showDialog = ref(false)
-const searchQuery = ref('')
-const projectDialog = ref(null)
-const loading = ref(false)
-
-const columns = [
-  { name: 'name', label: 'Nom du projet', field: 'name', align: 'left', sortable: true },
-  { name: 'status', label: 'Statut', field: 'status', align: 'center', sortable: true },
-  { name: 'tasksNumber', label: 'Tâches', field: 'tasksNumber', align: 'center', sortable: true },
-  { name: 'description', label: 'Description', field: 'description', align: 'left' },
-  { name: 'createdAt', label: 'Créé le', field: 'createdAt', align: 'center', sortable: true },
-  { name: 'updatedAt', label: 'Mis à jour le', field: 'updatedAt', align: 'center', sortable: true },
-  { name: 'createdBy', label: 'Créé par', field: row => `${row.createdBy.firstName} ${row.createdBy.lastName}`, align: 'left' },
-  { name: 'updatedBy', label: 'Mis à jour par', field: row => `${row.updatedBy.firstName} ${row.updatedBy.lastName}`, align: 'left' },
-  { name: 'actions', label: 'Actions', field: '', align: 'center' }
-]
-
-function initProject() {
-  showDialog.value = false
-  loading.value = true
-  projectStore.setProjects().then(() => {
-    loading.value = true
-    rows.value = projectStore.getAllProjects().map(p => ({
-      ...p,
-      showDescription: false,
-      tasksCompleted: p.tasksNumber
-    }))
-  }).finally(() => {
-    loading.value = false
-  })
-}
-
-function openProjectDetails(project) {
-  taskStore.getProjectTasks(project?.id).then((data) => {
-    taskStore.setTasks(data.tasks ?? [])
-  })
-  projectStore.setCurrentProject(project)
-  router.push({ name: 'project-overview', params: { id: project.id } })
-}
-
-function getStatusColor(status) {
-  switch (status) {
-    case 'En cours': return 'orange'
-    case 'Terminé': return 'green'
-    default: return 'grey'
+  export default {
+    name: 'ProjectComponent',
+    components: { FormCreateOrUpdateProject },
+    setup () {
+      const taskStore = useTaskStore()
+      const projectStore = useProjectStore()
+      return {
+        taskStore, projectStore
+      }
+    },
+    data () {
+      return {
+        $q: useQuasar(),
+        rows: [],
+        showDialog: false,
+        searchQuery: null,
+        loading: false
+      }
+    },
+    computed: {
+      columns () {
+        return [
+          { name: 'name', label: 'Nom du projet', field: 'name', align: 'left', sortable: true },
+          { name: 'status', label: 'Statut', field: 'status', align: 'center', sortable: true },
+          { name: 'tasksNumber', label: 'Tâches', field: 'tasksNumber', align: 'center', sortable: true },
+          { name: 'description', label: 'Description', field: 'description', align: 'left' },
+          { name: 'createdAt', label: 'Créé le', field: 'createdAt', align: 'center', sortable: true },
+          { name: 'updatedAt', label: 'Mis à jour le', field: 'updatedAt', align: 'center', sortable: true },
+          { name: 'createdBy', label: 'Créé par', field: row => `${row.createdBy.firstName} ${row.createdBy.lastName}`, align: 'left' },
+          { name: 'updatedBy', label: 'Mis à jour par', field: row => `${row.updatedBy.firstName} ${row.updatedBy.lastName}`, align: 'left' },
+          { name: 'actions', label: 'Actions', field: '', align: 'center' }
+        ]
+      }
+    },
+    mounted() {
+      this.initProject()
+    },
+    methods: {
+      initProject() {
+        this.showDialog = false
+        this.loading = true
+        this.projectStore.setProjects().then(() => {
+          this.loading = true
+          this.rows = this.projectStore.getAllProjects().map(p => ({
+            ...p,
+            showDescription: false,
+            tasksCompleted: p.tasksNumber
+          }))
+        }).finally(() => {
+          this.loading = false
+        })
+      },
+      openProjectDetails(project) {
+        this.taskStore.getProjectTasks(project?.id).then((data) => {
+          this.taskStore.setTasks(data.tasks ?? [])
+        })
+        this.projectStore.setCurrentProject(project)
+        this.$router.push({ name: 'project-overview', params: { id: project.id } })
+      },
+      getStatusColor(status) {
+        // const statusOptions = ['todo', 'done', 'current'];
+        switch (status) {
+          case 'current': return 'orange'
+          case 'done': return 'green'
+          default: return 'grey'
+        }
+      },
+      displayNameStatus (status) {
+        console.log('la valeur de status est', status)
+        switch (status) {
+          case 'current': return 'En cours'
+          case 'done': return 'Terminé'
+          case 'todo': return 'A faire'
+          default: return 'En courssfsfsf'
+        }
+      },
+      formatDate(date) {
+        return new Date(date).toLocaleDateString()
+      },
+      toggleDescription(row) {
+        row.showDescription = !row.showDescription
+      },
+      filterProjects() {
+        const query = this.searchQuery.trim().toLowerCase()
+        const allProjects = this.projectStore.getAllProjects()
+        if (!query) {
+          this.rows = allProjects
+        } else {
+          this.rows = allProjects.filter(project =>
+            project.name.toLowerCase().includes(query) ||
+            (project.description && project.description.toLowerCase().includes(query))
+          )
+        }
+      },
+      openCreateDialog() {
+        this.$refs.projectDialog.openDialogForCreate()
+      },
+      openEditDialog(project) {
+        this.$refs.projectDialog.openDialogForEdit(project)
+      },
+      confirmDelete(project) {
+        this.$q.notify({
+          title: 'Confirmation',
+          message: `Êtes-vous sûr de vouloir supprimer le projet "${project.name}" ?`, color: 'negative', cancel: true, persistent: true, timeout: 0,
+          actions: [{ label: 'Supprimer', color: 'white', handler: () => this.deleteProject(project.id)}]
+        })
+      },
+      deleteProject(projectId) {
+        this.projectStore.deleteProject(projectId).then(() => {
+          this.$q.notify({message: 'Projet supprimé avec succès', color: 'positive', icon: 'check_circle', position: 'top-right'})
+          this.initProject()
+        }).catch(() => {
+          this.$q.notify.notify({message: 'Erreur lors de la suppression', color: 'negative', icon: 'error', position: 'top-right'})
+        })
   }
-}
 
-function formatDate(date) {
-  return new Date(date).toLocaleDateString()
-}
 
-function toggleDescription(row) {
-  row.showDescription = !row.showDescription
-}
-
-function filterProjects() {
-  const query = searchQuery.value.trim().toLowerCase()
-  const allProjects = projectStore.getAllProjects()
-  if (!query) {
-    rows.value = allProjects
-  } else {
-    rows.value = allProjects.filter(project =>
-      project.name.toLowerCase().includes(query) ||
-      (project.description && project.description.toLowerCase().includes(query))
-    )
+    }
   }
-}
-
-function openCreateDialog() {
-  projectDialog.value.openDialogForCreate()
-}
-
-function openEditDialog(project) {
-  projectDialog.value.openDialogForEdit(project)
-}
-
-function confirmDelete(project) {
-  $q.dialog({
-    title: 'Confirmation',
-    message: `Êtes-vous sûr de vouloir supprimer le projet "${project.name}" ?`,
-    cancel: true,
-    persistent: true,
-    color: 'negative'
-  }).onOk(() => {
-    deleteProject(project.id)
-  })
-}
-
-function deleteProject(projectId) {
-  projectStore.deleteProject(projectId).then(() => {
-    $q.notify({
-      message: 'Projet supprimé avec succès',
-      color: 'positive',
-      icon: 'check_circle',
-      position: 'top-right'
-    })
-    initProject()
-  }).catch(() => {
-    $q.notify({
-      message: 'Erreur lors de la suppression',
-      color: 'negative',
-      icon: 'error',
-      position: 'top-right'
-    })
-  })
-}
-
-onMounted(() => {
-  initProject()
-})
 </script>
 
 <style scoped lang="scss">

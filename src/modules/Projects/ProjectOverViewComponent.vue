@@ -8,7 +8,7 @@
         </div>
         <q-badge :color="statusColor(project.status)" class="status-badge text-subtitle1 q-px-md q-py-sm" rounded>
           <q-icon :name="statusIcon(project.status)" class="q-mr-xs" />
-          {{ project.status }}
+          {{ displayNameStatus (project.status) }}
         </q-badge>
       </q-card-section>
       <q-linear-progress :value="progressValue" color="white" track-color="white" class="progress-bar"/>
@@ -65,7 +65,7 @@
 
             <q-item-section side>
               <div class="row items-center">
-                <q-badge :color="taskStatusColor(task.status)" class="q-mr-sm" rounded> {{ task.status }}</q-badge>
+                <q-badge :color="taskStatusColor(task.status)" class="q-mr-sm" rounded> {{ displayNameStatus(task.status) }}</q-badge>
                 <q-btn v-show="hoveredTaskId === task.id" flat round dense icon="delete" color="negative" @click.stop="confirmDeletingTask(task)"/>
               </div>
             </q-item-section>
@@ -203,17 +203,17 @@ export default {
     },
     statusColor(status) {
       switch (status) {
-        case 'Terminé': return 'positive'
-        case 'En cours': return 'primary'
-        case 'À faire': return 'grey'
+        case 'done': return 'positive'
+        case 'current': return 'primary'
+        case 'todo': return 'grey'
         default: return 'dark'
       }
     },
     statusIcon(status) {
       switch (status) {
-        case 'Terminé': return 'check_circle'
-        case 'En cours': return 'hourglass_empty'
-        case 'À faire': return 'schedule'
+        case 'done': return 'check_circle'
+        case 'current': return 'hourglass_empty'
+        case 'todo': return 'schedule'
         default: return 'help'
       }
     },
@@ -225,8 +225,8 @@ export default {
     },
     taskAvatarColor(task) {
       switch(task.status) {
-        case 'Terminé': return 'green'
-        case 'En cours': return 'blue'
+        case 'done': return 'green'
+        case 'current': return 'blue'
         default: return 'grey'
       }
     },
@@ -253,6 +253,15 @@ export default {
     cancelDeletingTask () {
       this.taskDeleting = false
       this.taskToDelete = null
+    },
+    displayNameStatus (status) {
+      console.log('la valeur de status est', status)
+      switch (status) {
+        case 'current': return 'En cours'
+        case 'done': return 'Terminé'
+        case 'todo': return 'A faire'
+        default: return 'En courssfsfsf'
+      }
     }
   },
   mounted() {
