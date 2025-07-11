@@ -1,7 +1,6 @@
 <template>
   <q-dialog
     v-model="showDialog"
-    persistent
     transition-show="jump-up"
     transition-hide="jump-down"
   >
@@ -36,6 +35,7 @@
             label="Statut *"
             :options="statusOptions"
             :rules="[val => !!val || 'Sélection requise']"
+            :readonly="!isEditMode"
             emit-value
             map-options
             class="animated fadeIn delay-1"
@@ -60,6 +60,7 @@
             v-model="project.description"
             label="Description"
             type="textarea"
+            rows="5"
             autogrow
             class="animated fadeIn delay-2"
           >
@@ -112,23 +113,23 @@ const isEditMode = ref(false)
 const loading = ref(false)
 
 const statusOptions = [
-  { label: 'En attente', value: 'pending' },
-  { label: 'En cours', value: 'in_progress' },
-  { label: 'Terminé', value: 'completed' }
+  { label: 'A faire', value: 'todo' },
+  { label: 'En cours', value: 'current' },
+  { label: 'Terminé', value: 'done' }
 ]
 
 const project = ref({
   id: null,
   name: '',
-  status: 'in_progress',
+  status: 'todo',
   description: ''
 })
 
 function statusColor(status) {
   switch(status) {
-    case 'completed': return 'positive'
-    case 'in_progress': return 'primary'
-    case 'pending': return 'grey'
+    case 'done': return 'positive'
+    case 'current': return 'primary'
+    case 'todo': return 'grey'
     default: return 'dark'
   }
 }
@@ -150,8 +151,7 @@ function openDialogForCreate() {
 
 function openDialogForEdit(existingProject) {
   project.value = {
-    ...existingProject,
-    status: statusOptions.find(opt => opt.label === existingProject.status)?.value || 'in_progress'
+    ...existingProject
   }
   isEditMode.value = true
   showDialog.value = true
@@ -161,7 +161,7 @@ function resetProject() {
   project.value = {
     id: null,
     name: '',
-    status: 'in_progress',
+    status: 'todo',
     description: ''
   }
 }
@@ -171,8 +171,7 @@ async function handleSubmit() {
 
   try {
     const payload = {
-      ...project.value,
-      status: statusOptions.find(opt => opt.value === project.value.status)?.label || 'En cours'
+      ...project.value
     }
 
     if (isEditMode.value) {

@@ -10,30 +10,7 @@
       <q-space />
 
       <div class="row items-center q-gutter-sm">
-        <q-btn
-          flat
-          round
-          dense
-          icon="notifications"
-          class="animated fadeIn delay-1"
-        >
-          <q-badge floating color="red" rounded />
-          <q-tooltip>Notifications</q-tooltip>
-        </q-btn>
-
-        <q-btn
-          flat
-          round
-          dense
-          icon="email"
-          class="animated fadeIn delay-2"
-        >
-          <q-badge floating color="orange" rounded />
-          <q-tooltip>Messages</q-tooltip>
-        </q-btn>
-
         <q-separator vertical spaced inset />
-
         <q-btn-dropdown
           flat
           stretch
@@ -46,13 +23,6 @@
                 <q-icon name="account_circle" />
               </q-item-section>
               <q-item-section>Profil</q-item-section>
-            </q-item>
-
-            <q-item clickable v-close-popup>
-              <q-item-section avatar>
-                <q-icon name="settings" />
-              </q-item-section>
-              <q-item-section>Paramètres</q-item-section>
             </q-item>
 
             <q-separator />
