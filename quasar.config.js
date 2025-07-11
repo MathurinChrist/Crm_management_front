@@ -2,6 +2,7 @@
 // https://v2.quasar.dev/quasar-cli-webpack/quasar-config-file
 
 import { defineConfig } from '#q-app/wrappers'
+import {config} from "dotenv";
 
 export default defineConfig((ctx) => {
   return {
@@ -23,6 +24,10 @@ export default defineConfig((ctx) => {
     // --> boot files are part of "main.js"
     // https://v2.quasar.dev/quasar-cli-webpack/boot-files
     boot: [
+        'i18n',
+        // 'axios',
+        'pinia',
+        'bus'
     ],
 
     // https://v2.quasar.dev/quasar-cli-webpack/quasar-config-file#css
@@ -48,7 +53,7 @@ export default defineConfig((ctx) => {
     build: {
       // publicPath: '/',
       vueRouterMode: 'hash', // available values: 'hash', 'history'
-
+      env: config({ path: `./.env` }).parsed,
       // webpackTranspile: false,
 
       // Add dependencies for transpiling with Babel (Array of string/regex)
@@ -83,22 +88,39 @@ export default defineConfig((ctx) => {
     },
 
     // https://v2.quasar.dev/quasar-cli-webpack/quasar-config-file#framework
+    // framework: {
+    //   config: {},
+    //
+    //   // iconSet: 'material-icons', // Quasar icon set
+    //   // lang: 'en-US', // Quasar language pack
+    //
+    //   // For special cases outside of where the auto-import strategy can have an impact
+    //   // (like functional components as one of the examples),
+    //   // you can manually specify Quasar components/directives to be available everywhere:
+    //   //
+    //   // components: [],
+    //   // directives: [],
+    //
+    //   // Quasar plugins
+    //   plugins: []
+    // },
+    // quasar.config file
+
     framework: {
-      config: {},
-
-      // iconSet: 'material-icons', // Quasar icon set
-      // lang: 'en-US', // Quasar language pack
-
-      // For special cases outside of where the auto-import strategy can have an impact
-      // (like functional components as one of the examples),
-      // you can manually specify Quasar components/directives to be available everywhere:
-      //
-      // components: [],
-      // directives: [],
-
-      // Quasar plugins
-      plugins: []
+      plugins: [
+        'Notify'
+      ],
+      config: {
+        notify: {
+          position: 'top',       // 'top', 'bottom', 'left', 'right', 'center'...
+          timeout: 3000,         // durée en ms
+          textColor: 'white',    // couleur du texte
+          color: 'primary',      // couleur du fond
+          actions: [{ icon: 'close', color: 'white' }]
+        }
+      }
     },
+
 
     // animations: 'all', // --- includes all animations
     // https://quasar.dev/options/animations
