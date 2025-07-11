@@ -22,28 +22,9 @@
             <q-icon name="wc" />
           </template>
         </q-select>
-
         <q-input v-model="form.email" label="Email *" type="email" outlined :rules="emailRules" lazy-rules>
           <template v-slot:prepend>
             <q-icon name="email" />
-          </template>
-        </q-input>
-
-        <q-input v-model="form.password" label="Mot de passe *" :type="showPassword ? 'text' : 'password'" outlined :rules="passwordRules" lazy-rules>
-          <template v-slot:prepend>
-            <q-icon name="lock" />
-          </template>
-          <template v-slot:append>
-            <q-icon :name="showPassword ? 'visibility_off' : 'visibility'" class="cursor-pointer" @click="showPassword = !showPassword"/>
-          </template>
-        </q-input>
-
-        <q-input v-model="form.passwordConfirm" label="Confirmation mot de passe *" :type="showPassword ? 'text' : 'password'" outlined :rules="[
-           val => !!val || 'Champ obligatoire',
-           val => val === form.password || 'Les mots de passe ne correspondent pas'
-         ]" lazy-rules>
-          <template v-slot:prepend>
-            <q-icon name="lock" />
           </template>
         </q-input>
 
