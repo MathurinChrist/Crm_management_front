@@ -2,7 +2,7 @@
   <div class="login-form">
     <q-form @submit.prevent="login" class="q-gutter-md">
       <div class="text-h5 text-center q-mb-md"> Se connecter</div>
-      <q-input v-model="email" ref="refEmail" label="Adresse Email *" type="email" outlined :rules="emailRules" lazy-rules class="animated fadeInUp">
+      <q-input v-model="email" ref="refEmail" label="Adresse Email *" type="email" outlined :rules="emailRules(email)" lazy-rules class="animated fadeInUp">
         <template v-slot:prepend>
           <q-icon name="email" />
         </template>
@@ -32,85 +32,97 @@
       <div class="text-center q-mt-md">
         <p class="text-caption">
           Pas encore de compte ?
-          <q-btn
-            label="Créer un compte"
-            flat
-            dense
-            color="primary"
-            size="sm"
-            @click="$router.push({ name: 'register' })"
-          />
+          <q-btn label="Créer un compte" flat dense color="primary" size="sm" @click="$router.push({ name: 'register' })"/>
         </p>
       </div>
+      <ConnectWith :options="optionConnect" />
     </q-form>
   </div>
 </template>
 
-<script setup>
-import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+<script>
+import ConnectWith from '../sso/components/ConnectWith.vue'
+
+import { useSecurityStore } from "src/modules/security/store/security.js";
 import { useQuasar } from 'quasar'
-import { useSecurityStore } from '../../modules/security/store/security.js'
+import { useUserStore } from 'src/modules/Users/Store/UsersStore.js'
 
-const $q = useQuasar()
-const security = useSecurityStore()
-const router = useRouter()
-
-const email = ref('')
-const refEmail = ref(null)
-const password = ref('')
-const showPassword = ref(false)
-const rememberMe = ref(false)
-const isLoading = ref(false)
-
-const emailRules = [
-  val => !!val || 'Champ obligatoire',
-  val => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val) || 'Email invalide'
-]
-
-const passwordRules = [
-  val => !!val || 'Champ obligatoire',
-  val => val.length >= 6 || 'Minimum 6 caractères'
-]
-
-onMounted(() => {
-  refEmail.value?.focus()
-})
-
-const login = async () => {
-  try {
-    isLoading.value = true
-
-    const payload = {
-      username: email.value,
-      password: password.value,
-      remember: rememberMe.value
+export default {
+  name: 'LoginComponent',
+  components: {
+    ConnectWith
+  },
+  setup () {
+    const securityStore = useSecurityStore()
+    const userStore = useUserStore()
+    return {
+      securityStore,
+      userStore
     }
-
-    const response = await security.login(payload)
-    security.setToken(response.token)
-
-    const userData = await security.getMe()
-    security.setCurrentUser(userData.user)
-
-    $q.notify({
-      message: 'Connexion réussie',
-      color: 'positive',
-      icon: 'check_circle',
-      position: 'top'
-    })
-
-    router.push({ name: 'dashboard' })
-  } catch (error) {
-    console.log(error)
-    $q.notify({
-      message: error.response?.data?.message || 'Échec de la connexion',
-      color: 'negative',
-      icon: 'error',
-      position: 'top'
-    })
-  } finally {
-    isLoading.value = false
+  },
+  data () {
+    return {
+      $q: useQuasar(),
+      email: null,
+      password: null,
+      showPassword: false,
+      rememberMe: false,
+      isLoading: false,
+      refEmail: null
+    }
+  },
+  computed: {
+    optionConnect () {
+      return [
+        { name: 'MicroSoftIcon', provider: 'azure' },
+        { name: 'GoogleIcon', provider: 'google'}
+      ]
+    }
+  },
+  mounted() {
+    this.$refs.refEmail.focus()
+  },
+  methods: {
+    login() {
+      if (!this.email || !this.password) return
+      this.isLoading = true
+      const payload = {
+        username: this.email,
+        password: this.password,
+        remember: this.rememberMe
+      }
+      this.securityStore.login(payload).then(response => {
+        this.securityStore.setToken(response.token)
+        this.securityStore.getMe().then(response => {
+          this.securityStore.setCurrentUser(response.user)
+        })
+        this.userStore.getUsers().then( (response) => {
+          this.userStore.users = response?.users
+        })
+        this.$router.push({ name: 'dashboard' })
+        this.$q.notify({message: 'Connexion réussie', color: 'positive', icon: 'check_circle', position: 'top'})
+      }).catch((error) => {
+        this.$q.notify({message: error.response?.data?.message || 'Échec de la connexion', color: 'negative', icon: 'error', position: 'top'})
+      }).finally(() => {
+        this.isLoading = false
+      })
+    },
+    emailRules (val) {
+      if (!val) {
+        return 'Champ obligatoire'
+      }
+      if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) {
+        return 'Email invalide'
+      }
+    },
+    passwordRules (val) {
+      if (!val) {
+        return 'Champ obligatoire'
+      }
+      if (val && val.length >= 6) {
+        return 'Email invalide'
+      }
+    },
   }
 }
 </script>
