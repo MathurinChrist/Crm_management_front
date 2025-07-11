@@ -46,7 +46,7 @@
           <div class="col-md-6 col-xs-12">
             <q-card class="animated fadeInRight delay-1 progress-card">
               <q-card-section class="bg-info text-white">
-                <div class="text-h6">In Progress</div>
+                <div class="text-h6">Projets en cours</div>
               </q-card-section>
               <q-card-section class="text-center">
                 <q-circular-progress
@@ -61,8 +61,8 @@
                 >
                   60%
                 </q-circular-progress>
-                <div class="text-subtitle1">Completed: 15</div>
-                <div class="text-subtitle1">In Progress: 10</div>
+                <div class="text-subtitle1">Terminés: 15</div>
+                <div class="text-subtitle1">En cours: 10</div>
               </q-card-section>
             </q-card>
           </div>
@@ -70,7 +70,7 @@
           <div class="col-md-6 col-xs-12">
             <q-card class="animated fadeInRight delay-2 hold-card">
               <q-card-section class="bg-warning text-white">
-                <div class="text-h6">On Hold</div>
+                <div class="text-h6">En attente</div>
               </q-card-section>
               <q-card-section class="text-center">
                 <q-circular-progress
@@ -94,7 +94,7 @@
 
         <q-card class="animated fadeInUp delay-3">
           <q-card-section class="bg-teal text-white">
-            <div class="text-h6">Users</div>
+            <div class="text-h6">Utilisateurs</div>
           </q-card-section>
           <q-card-section>
             <q-list bordered separator>
@@ -125,15 +125,15 @@ export default {
   data() {
     return {
       stats: [
-        { title: 'Total Projects', value: 12, color: 'bg-blue', icon: 'folder' },
-        { title: 'Total Tasks', value: 25, color: 'bg-green', icon: 'list_alt' },
-        { title: 'Completed Tasks', value: 8, color: 'bg-teal', icon: 'check_circle' },
-        { title: 'Users', value: 5, color: 'bg-purple', icon: 'people' }
+        { title: 'Projets Totaux', value: 12, color: 'bg-blue', icon: 'folder' },
+        { title: 'Tâches Totales', value: 25, color: 'bg-green', icon: 'list_alt' },
+        { title: 'Tâches Terminées', value: 8, color: 'bg-teal', icon: 'check_circle' },
+        { title: 'Utilisateurs', value: 5, color: 'bg-purple', icon: 'people' }
       ],
       projectColumns: [
-        { name: 'name', label: 'Project', field: 'name', align: 'left' },
-        { name: 'tasks', label: 'Tasks', field: 'tasks', align: 'center' },
-        { name: 'status', label: 'Status', field: 'status', align: 'center' }
+        { name: 'name', label: 'Projet', field: 'name', align: 'left' },
+        { name: 'tasks', label: 'Tâches', field: 'tasks', align: 'center' },
+        { name: 'status', label: 'Statut', field: 'status', align: 'center' }
       ],
       projects: [
         { name: 'Website Redesign', tasks: '2 / 3', status: 'In Progress' },
