@@ -84,21 +84,9 @@ export default {
         separator: false
       },
       {
-        icon: 'email',
-        label: 'Messagerie',
-        name: 'communication',
-        separator: false
-      },
-      {
         icon: 'people',
         label: 'Utilisateurs',
         name: 'users',
-        separator: false
-      },
-      {
-        icon: 'settings',
-        label: 'Paramètres',
-        name: 'settings',
         separator: false
       }
     ])

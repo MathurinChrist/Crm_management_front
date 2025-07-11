@@ -37,7 +37,7 @@
         <q-tabs v-model="taskTab" inline-label class="text-teal q-mt-md" active-color="primary" indicator-color="primary">
           <q-tab name="all" icon="list_alt" label="Toutes" />
           <q-tab name="todo" icon="schedule" label="À faire" />
-          <q-tab name="inProgress" icon="hourglass_empty" label="En cours" />
+          <q-tab name="current" icon="hourglass_empty" label="En cours" />
           <q-tab name="done" icon="check_circle" label="Terminées" />
         </q-tabs>
         <q-separator class="q-mb-md" />
@@ -163,10 +163,11 @@ export default {
     },
     filteredTasks() {
       if (this.taskTab === 'all') return this.tasks
+      console.log('dans cette conditon')
       return this.tasks.filter(task =>
         this.taskTab === 'todo' ? task.status === 'todo' :
-          this.taskTab === 'inProgress' ? task.status === 'En cours' :
-            task.status === 'Terminé'
+          this.taskTab === 'current' ? task.status === 'current' :
+            task.status === 'done'
       )
     },
     totalPages() {

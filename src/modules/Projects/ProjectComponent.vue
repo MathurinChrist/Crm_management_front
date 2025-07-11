@@ -9,8 +9,7 @@
       <q-spinner-ios size="40px" color="primary" class="animated pulse infinite"/>
     </div>
 
-    <q-table v-else flat bordered title="Tous les projets" :rows="rows" :columns="columns" row-key="id" binary-state-sort class="project-table animated fadeInUp"
-             :grid="$q.screen.lt.md" :pagination="{ rowsPerPage: 10 }">
+    <q-table v-else flat bordered title="Tous les projets" :rows="rows" :columns="columns" row-key="id" binary-state-sort class="project-table animated fadeInUp" :grid="$q.screen.lt.md" :pagination="{ rowsPerPage: 10 }">
       <template v-slot:top>
         <div class="text-h5 text-weight-bold text-primary q-py-sm">
           Tous les projets
