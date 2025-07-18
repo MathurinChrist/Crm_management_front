@@ -77,6 +77,7 @@ export const useProjectStore = defineStore('project', () => {
     getProjectTAskCounters,
     setCurrentProject,
     setCurrentProjectTasksNumber,
+    initProject,
     projects,
     deleteProject,
     createProject,
