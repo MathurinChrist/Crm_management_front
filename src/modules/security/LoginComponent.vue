@@ -96,9 +96,7 @@ export default {
         this.securityStore.getMe().then(response => {
           this.securityStore.setCurrentUser(response.user)
         })
-        this.userStore.getUsers().then( (response) => {
-          this.userStore.users = response?.users
-        })
+
         this.$router.push({ name: 'dashboard' })
         this.$q.notify({message: 'Connexion réussie', color: 'positive', icon: 'check_circle', position: 'top'})
       }).catch((error) => {

@@ -36,12 +36,14 @@ export default {
   },
   computed: {
     urlProviderConnection () {
-      return 'http: www.google.com/' + 'auth/'
+      return process.env.APP_BASE_URL + '/auth/'
     }
   },
   methods: {
-    connectWith (arg) {
-      console.log('le arg est',  arg)
+    connectWith (provider) {
+     if (!provider) return
+      console.log('url est',  this.urlProviderConnection + provider)
+      window.location.href = this.urlProviderConnection + provider
     },
     ssoLogin (provider) {
       window.location.href = this.urlProviderConnection + provider
