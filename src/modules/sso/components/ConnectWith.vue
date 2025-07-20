@@ -45,9 +45,6 @@ export default {
       console.log('url est',  this.urlProviderConnection + provider)
       window.location.href = this.urlProviderConnection + provider
     },
-    ssoLogin (provider) {
-      window.location.href = this.urlProviderConnection + provider
-    }
   }
 }
 </script>
