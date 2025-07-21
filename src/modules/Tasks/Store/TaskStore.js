@@ -31,6 +31,14 @@ export const useTaskStore = defineStore('projectTask', () => {
     })
   }
 
+  function getTaskForAllProjects () {
+    return new Promise((resolve, reject) => {
+      axiosInstance.get('/task/allTask')
+        .then( response =>  resolve(response.data) )
+        .catch(error => reject(error))
+    })
+  }
+
   function createTask (payload) {
     console.log('la payload est', payload)
     const projectId = parseInt(payload?.project)
@@ -64,6 +72,7 @@ export const useTaskStore = defineStore('projectTask', () => {
   }
 
   return {
+    getTaskForAllProjects,
     deleteTask,
     projectTasks,
     currentTask,

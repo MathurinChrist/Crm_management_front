@@ -425,7 +425,7 @@ export default {
 
       this.task = {
         ...task,
-        priority: task?.priority || "medium",
+        priority: task?.priorityOptions || "medium",
         dueDate: task?.dueDate || date.formatDate(Date.now() + 86400000 * 3, 'DD/MM/YYYY'),
         attachments: task?.attachments || [
           {
