@@ -2,7 +2,7 @@
   <q-page class="q-pa-md">
     <div class="row justify-between items-center q-mb-md">
       <h1 class="text-h4 q-ma-none">User Management</h1>
-      <q-btn color="primary" icon="add" label="Create User" @click="createUsers()"/>
+      <q-btn color="primary" icon="add" label="Create User" :disabled="isNormalUser" @click="createUsers()"/>
     </div>
 
     <q-card flat bordered class="q-mb-md">
@@ -13,8 +13,6 @@
               <q-icon name="search" />
             </template>
           </q-input>
-          <q-select v-model="roleFilter" outlined dense options-dense multiple :options="roleOptions" label="Filter by role" style="min-width: 200px" clearable/>
-          <q-select v-model="genderFilter" outlined dense options-dense :options="genderOptions" label="Filter by gender" clearable/>
         </div>
       </q-card-section>
     </q-card>
@@ -51,10 +49,10 @@
               <q-btn size="sm" color="info" icon="visibility" dense @click="viewUser(props.row)">
                 <q-tooltip>View details</q-tooltip>
               </q-btn>
-              <q-btn size="sm" color="primary" icon="edit" dense @click="editUser(props.row)">
+              <q-btn size="sm" color="primary" icon="edit" :disabled="isNormalUser" dense @click="editUser(props.row)">
                 <q-tooltip>Edit</q-tooltip>
               </q-btn>
-              <q-btn size="sm" color="negative" icon="delete" dense @click="confirmDelete(props.row)">
+              <q-btn size="sm" color="negative" icon="delete" :disabled="isNormalUser" dense @click="confirmDelete(props.row)">
                 <q-tooltip>Delete</q-tooltip>
               </q-btn>
             </div>
@@ -105,7 +103,7 @@
 
             <q-card-actions align="right" class="q-mt-md">
               <q-btn flat label="Cancel" color="negative" v-close-popup />
-              <q-btn type="button" label="Save" color="primary" :loading="loadingButton"  @click.stop = "save(currentUser)"/>
+              <q-btn type="button" label="Save" color="primary" :disabled="isNormalUser" :loading="loadingButton"  @click.stop = "save(currentUser)"/>
             </q-card-actions>
           </q-form>
         </q-card-section>
@@ -174,13 +172,7 @@
 
         <q-card-actions align="right">
           <q-btn flat label="Cancel" color="primary" v-close-popup />
-          <q-btn
-            flat
-            label="Delete"
-            color="negative"
-            @click="deleteUser"
-            v-close-popup
-          />
+          <q-btn flat label="Delete" :disabled="isNormalUser" color="negative" @click="deleteUser" v-close-popup/>
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -265,6 +257,10 @@ export default {
   },
 
   computed: {
+    isNormalUser () {
+      if (Array.isArray(this.currentUser.roles) && this.currentUser.roles.includes('ROLE_SUPER_ADMIN')) return false
+      return true
+    },
     isReadonly () {
       const usersRoles = this.security.getCurrentUser()?.roles ?? ['ROLE_USER']
       return !(!usersRoles.includes('SUPER_ADMIN') || !usersRoles.includes('CHEF_PROJECT'));
@@ -291,6 +287,10 @@ export default {
   },
   methods: {
     save (currentUser) {
+      if (this.isNormalUser) {
+        this.showToasterMessage('Vous avez pas les droits nécessaires pour effectuer cette action', 'negative')
+        return
+      }
       this.loadingButton = true
       this.userStore.update(currentUser).then(() => {
         this.showUserDialog = false
@@ -301,16 +301,18 @@ export default {
     },
 
     createUsers () {
-      this.loadingUsers()
+      this.$emitter.emit('user:created')
     },
     loadingUsers () {
+      this.security.getMe().then(data => {
+        this.currentUser = data?.user
+      })
       this.loading = true;
       this.userStore.getUsers().then(data => {
         this.users = data.users
         this.editMode = false;
         this.showUserDialog = false;
-      }).catch((error) => {
-        console.log('les erreurs sont', error)
+      }).catch(() => {
       }).finally(() => {
         this.loading = false;
         this.loadingButton = false
@@ -332,12 +334,20 @@ export default {
     },
 
     editUser(user) {
+      if (this.isNormalUser) {
+        this.showToasterMessage('Vous avez pas les droits nécessaires pour effectuer cette action', 'negative')
+        return
+      }
       this.currentUser = { ...user };
       this.editMode = true;
       this.showUserDialog = true;
     },
 
     createUser() {
+      if (this.isNormalUser) {
+        this.showToasterMessage('Vous avez pas les droits nécessaires pour effectuer cette action', 'negative')
+        return
+      }
       this.currentUser = {
         firstName: '',
         lastName: '',
@@ -363,6 +373,10 @@ export default {
     },
 
     confirmDelete(user) {
+      if (this.isNormalUser) {
+        this.showToasterMessage('Vous avez pas les droits nécessaires pour effectuer cette action', 'negative')
+        return
+      }
       this.selectedUser = user;
       this.showDeleteDialog = true;
     },
@@ -371,17 +385,13 @@ export default {
         this.userStore.deleteUser(this.selectedUser.id).then(() => {
           this.loadingUsers()
         }).catch((error) => {
-          this.showSuccess(error?.message ?? 'error does not work');
-          this.showSuccess('User deleted successfully');
+          this.showToasterMessage(error?.message ?? 'error does not work');
         })
     },
 
-    showSuccess(message) {
-      this.$q.notify({
-        type: 'positive',
-        message,
-        position: 'top-right',
-      });
+    showToasterMessage(message, type='positive') {
+      this.showToasterMessage('User deleted successfully');
+      this.$q.notify({type: type, message, position: 'top-right',})
     },
 
     showError(message) {
@@ -394,7 +404,7 @@ export default {
   },
 
   mounted() {
-    this.createUsers();
+    this.loadingUsers()
   },
 }
 </script>

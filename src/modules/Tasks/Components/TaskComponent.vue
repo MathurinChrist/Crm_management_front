@@ -1,6 +1,5 @@
 <template>
   <q-page class="q-pa-md">
-
     <div class="row items-center q-mb-md">
       <h1 class="text-h4 q-ma-none">Tâches</h1>
       <q-space />
