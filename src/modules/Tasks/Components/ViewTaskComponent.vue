@@ -151,8 +151,8 @@
               active-bg-color="primary-1"
             >
               <q-tab name="comments" icon="chat" label="Commentaires" />
-              <q-tab name="attachments" icon="attachment" label="Pièces jointes" />
-              <q-tab name="activity" icon="history" label="Historique" />
+<!--              <q-tab name="attachments" icon="attachment" label="Pièces jointes" />-->
+<!--              <q-tab name="activity" icon="history" label="Historique" />-->
             </q-tabs>
 
             <q-separator class="q-mb-lg" />
