@@ -19,7 +19,7 @@
 
       <div class="row justify-between items-center">
         <q-checkbox v-model="rememberMe" label="Se souvenir de moi" dense />
-        <q-btn label="Mot de passe oublié ?" flat dense color="primary" size="sm" @click="$router.push({ name: 'password-reset' })"/>
+        <q-btn label="Mot de passe oublié ?" flat dense color="primary" size="sm" @click="$router.push({ name: 'password_forgotten' })"/>
       </div>
 
       <q-btn label="Connexion" type="submit" color="primary" :loading="isLoading" class="full-width animated fadeInUp delay-2">

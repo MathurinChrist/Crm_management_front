@@ -7,7 +7,6 @@
     <div v-else>
       <div class="text-h4 text-primary text-weight-bold q-mb-lg">Tableau de bord</div>
 
-      <!-- Statistiques -->
       <div class="row q-col-gutter-md q-mb-lg">
         <q-card
           v-for="stat in stats"
@@ -26,9 +25,7 @@
         </q-card>
       </div>
 
-      <!-- Projets + Graphiques -->
       <div class="row q-col-gutter-md">
-        <!-- Table des projets -->
         <div class="col-12 col-md-6">
           <q-card class="fade-in">
             <q-card-section class="bg-primary text-white">
@@ -55,7 +52,6 @@
           </q-card>
         </div>
 
-        <!-- Statistiques circulaires -->
         <div class="col-12 col-md-6">
           <div class="row q-col-gutter-md q-mb-md">
             <div class="col-12 col-sm-6">
