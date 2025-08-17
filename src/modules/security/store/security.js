@@ -39,9 +39,9 @@ export const useSecurityStore = defineStore('security', () => {
   function changePassword (payload) {
     return new Promise((resolve, reject) => {
       axiosInstance.post('/user/forgot-password', payload).then((data) => {
-        return resolve(data)
-      }).catch(data => {
-        return reject(data)
+        return resolve(data.data)
+      }).catch(error => {
+        return reject(error.response.message)
       })
     })
   }
