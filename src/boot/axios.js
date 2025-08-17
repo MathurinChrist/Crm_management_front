@@ -24,6 +24,14 @@ axiosInstance.interceptors.request.use(config => {
 axiosInstance.interceptors.response.use(response => {
     return response
 }, error => {
+  if (error.response && error.response.status === 401) {
+    console.log('je suis dans ceci')
+    if (localStorage.getItem('token')) {
+      localStorage.removeItem('token')
+    }
+    window.location.href = 'http://localhost:9000/#/authentication/login'
+    return
+  }
     return Promise.reject(error)
 })
 
