@@ -1,33 +1,19 @@
 <template>
   <div class="project-list-container q-pa-md column">
 
-    <!-- Barre d'action : créer + rechercher -->
     <div class="button-search q-mb-md fadeIn">
-      <q-btn label="Créer un projet" color="primary" icon="add" @click="openCreateDialog" class="pulse" no-caps />
-      <q-input
-        v-model="searchQuery"
-        label="Rechercher un projet"
-        debounce="300"
-        clearable
-        outlined
-        dense
-        standout
-        bg-color="white"
-        class="search-input fadeInRight"
-        @keyup="filterProjects"
-      >
+      <q-btn label="Créer un projet" color="primary" :disabled="isNormalUser" icon="add" @click="openCreateDialog" class="pulse" no-caps />
+      <q-input v-model="searchQuery" label="Rechercher un projet" debounce="300" clearable outlined dense standout bg-color="white" class="search-input fadeInRight" @keyup="filterProjects">
         <template v-slot:append>
           <q-icon name="search" />
         </template>
       </q-input>
     </div>
 
-    <!-- Loading -->
     <div v-if="loading" class="full-height flex flex-center">
       <q-spinner-ios size="40px" color="primary" class="pulse infinite" />
     </div>
 
-    <!-- Tableau des projets -->
     <q-table
       v-else
       flat
@@ -53,7 +39,6 @@
 
       <template v-slot:body="props">
         <q-tr :props="props" class="project-row fadeIn delay-1s">
-          <!-- Nom + statut -->
           <q-td key="name" @click="openProjectDetails(props.row)" class="cursor-pointer text-weight-bold">
             <div class="row items-center no-wrap">
               <q-icon
@@ -133,7 +118,6 @@
             </div>
           </q-td>
 
-          <!-- Créé par -->
           <q-td key="createdBy">
             <div class="row items-center">
               <q-avatar size="sm" color="teal" text-color="white" class="q-mr-sm">
@@ -143,7 +127,6 @@
             </div>
           </q-td>
 
-          <!-- Modifié par -->
           <q-td key="updatedBy">
             <div class="row items-center">
               <q-avatar size="sm" color="orange" text-color="white" class="q-mr-sm">
@@ -153,27 +136,24 @@
             </div>
           </q-td>
 
-          <!-- Actions -->
           <q-td key="actions">
             <div class="actions-icons">
-              <q-btn dense flat round icon="edit" color="primary" @click="openEditDialog(props.row)" />
-              <q-btn dense flat round icon="delete" color="negative" @click="confirmDelete(props.row)" />
+              <q-btn dense flat round icon="edit" :disabled="isNormalUser" color="primary" @click="openEditDialog(props.row)" />
+              <q-btn dense flat round icon="delete" :disabled="isNormalUser" color="negative" @click="confirmDelete(props.row)" />
             </div>
           </q-td>
         </q-tr>
       </template>
 
-      <!-- Aucune donnée -->
       <template v-slot:no-data>
         <div class="full-width row flex-center text-grey q-gutter-sm q-pa-lg">
           <q-icon name="search_off" size="2em" />
           <span>Aucun projet trouvé</span>
-          <q-btn flat color="primary" label="Créer un projet" @click="openCreateDialog" />
+          <q-btn flat color="primary" label="Créer un projet" :disabled="isNormalUser" @click="openCreateDialog" />
         </div>
       </template>
     </q-table>
 
-    <!-- Dialog Form -->
     <FormCreateOrUpdateProject ref="projectDialog" @project-updated="initProject" />
     <router-view />
   </div>
@@ -182,6 +162,7 @@
 <script>
   import {useTaskStore} from 'src/modules/Tasks/Store/TaskStore.js'
   import {useProjectStore} from 'src/modules/Projects/store/projectStore.js'
+  import { useSecurityStore } from "src/modules/security/store/security.js";
 
   import FormCreateOrUpdateProject from 'src/modules/Projects/FormCreateOrUpdateProject.vue'
   import {useQuasar} from "quasar";
@@ -192,8 +173,9 @@
     setup () {
       const taskStore = useTaskStore()
       const projectStore = useProjectStore()
+      const security = useSecurityStore()
       return {
-        taskStore, projectStore
+        taskStore, projectStore, security
       }
     },
     data () {
@@ -202,10 +184,17 @@
         rows: [],
         showDialog: false,
         searchQuery: null,
-        loading: false
+        loading: false,
+        currentUser: null
       }
     },
     computed: {
+      isNormalUser () {
+        if ((Array.isArray(this.currentUser?.roles) && this.currentUser?.roles.includes('ROLE_SUPER_ADMIN'))) {
+          return  false
+        }
+        return true
+      },
       columns () {
         return [
           { name: 'name', label: 'Nom du projet', field: 'name', align: 'left', sortable: true },
@@ -221,6 +210,10 @@
       }
     },
     mounted() {
+      this.security.getMe().then(data => {
+        this.currentUser = data.user
+        this.security.setCurrentUser(this.currentUser)
+      })
       this.initProject()
     },
     methods: {
@@ -281,12 +274,20 @@
         }
       },
       openCreateDialog() {
+        if (this.isNormalUser) {
+          this.showToasterMessage('Vous avez pas les droits nécessaires pour effectuer cette action', 'negative')
+          return
+        }
         this.$refs.projectDialog.openDialogForCreate()
       },
       openEditDialog(project) {
         this.$refs.projectDialog.openDialogForEdit(project)
       },
       confirmDelete(project) {
+        if (this.isNormalUser) {
+          this.showToasterMessage('Vous avez pas les droits nécessaires pour effectuer cette action', 'negative')
+          return
+        }
         this.$q.notify({
           title: 'Confirmation',
           message: `Êtes-vous sûr de vouloir supprimer le projet "${project.name}" ?`, color: 'negative', cancel: true, persistent: true, timeout: 0,
@@ -294,13 +295,21 @@
         })
       },
       deleteProject(projectId) {
+        if (this.isNormalUser) {
+          this.showToasterMessage('Vous avez pas les droits nécessaires pour effectuer cette action', 'negative')
+          return
+        }
         this.projectStore.deleteProject(projectId).then(() => {
           this.$q.notify({message: 'Projet supprimé avec succès', color: 'positive', icon: 'check_circle', position: 'top-right'})
           this.initProject()
         }).catch(() => {
           this.$q.notify.notify({message: 'Erreur lors de la suppression', color: 'negative', icon: 'error', position: 'top-right'})
         })
-  }
+      },
+      showToasterMessage(message, type='positive') {
+        this.$q.notify({type: type, message, position: 'top-right',})
+      },
+
 
 
     }

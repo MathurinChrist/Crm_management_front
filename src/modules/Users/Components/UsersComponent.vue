@@ -1,22 +1,9 @@
 <template>
   <q-page class="q-pa-md">
     <div class="row justify-between items-center q-mb-md">
-      <h1 class="text-h4 q-ma-none">User Management</h1>
-      <q-btn color="primary" icon="add" label="Create User" :disabled="isNormalUser" @click="createUsers()"/>
+      <h1 class="text-h4 q-ma-none"> Gestion des utilisateurs </h1>
+      <q-btn color="primary" icon="add" label="Create User" :disabled="isNormalUser"  @click="createUsers()"/>
     </div>
-
-    <q-card flat bordered class="q-mb-md">
-      <q-card-section>
-        <div class="row items-center q-gutter-md">
-          <q-input v-model="searchQuery" dense outlined placeholder="Search users..." class="col-grow" clearable>
-            <template v-slot:append>
-              <q-icon name="search" />
-            </template>
-          </q-input>
-        </div>
-      </q-card-section>
-    </q-card>
-
     <q-card flat bordered v-if="filteredUsers.length > 0 && !loading">
       <q-table :rows="filteredUsers" :columns="columns" row-key="id" :loading="loading" :pagination="pagination" binary-state-sort>
         <template v-slot:header-cell-actions="props">
@@ -37,7 +24,7 @@
           <q-td :props="props">
             <div class="q-gutter-xs">
               <q-badge v-for="role in props.row.roles" :key="role" color="secondary" class="q-px-sm q-py-xs">
-                {{ role.replace('ROLE_', '') }}
+                {{ roleUser(role) }}
               </q-badge>
             </div>
           </q-td>
@@ -49,10 +36,10 @@
               <q-btn size="sm" color="info" icon="visibility" dense @click="viewUser(props.row)">
                 <q-tooltip>View details</q-tooltip>
               </q-btn>
-              <q-btn size="sm" color="primary" icon="edit" :disabled="isNormalUser" dense @click="editUser(props.row)">
+              <q-btn size="sm" color="primary" icon="edit" v-if="props.row.email !== currentUser.email" :disabled="isNormalUser" dense @click="editUser(props.row)">
                 <q-tooltip>Edit</q-tooltip>
               </q-btn>
-              <q-btn size="sm" color="negative" icon="delete" :disabled="isNormalUser" dense @click="confirmDelete(props.row)">
+              <q-btn size="sm" color="negative" icon="delete" v-if="props.row.email !== currentUser.email" :disabled="isNormalUser" dense @click="confirmDelete(props.row)">
                 <q-tooltip>Delete</q-tooltip>
               </q-btn>
             </div>
@@ -68,7 +55,7 @@
       <q-card style="min-width: 500px">
         <q-card-section class="row items-center q-pb-none">
           <div class="text-h6">
-            {{ editMode ? 'Edit User' : 'Create New User' }}
+            {{ editMode ? 'Modifié l"utilisateur' : 'Créer un l"utilisateur' }}
           </div>
           <q-space />
           <q-btn icon="close" flat round dense v-close-popup />
@@ -78,32 +65,32 @@
           <q-form>
             <div class="row q-col-gutter-md">
               <div class="col-6">
-                <q-input v-model="currentUser.firstName" label="First Name" outlined dense :rules="[val => !!val || 'Field is required']"/>
+                <q-input v-model="user.firstName" label="First Name" outlined dense :rules="[val => !!val || 'Field is required']"/>
               </div>
               <div class="col-6">
-                <q-input v-model="currentUser.lastName" label="Last Name" outlined dense :rules="[val => !!val || 'Field is required']"/>
+                <q-input v-model="user.lastName" label="Last Name" outlined dense :rules="[val => !!val || 'Field is required']"/>
               </div>
               <div class="col-12">
-                <q-select v-model="currentUser.gender" :options="genderOptions" label="Gender" outlined dense emit-value map-options/>
+                <q-select v-model="user.gender" :options="genderOptions" label="Gender" outlined dense emit-value map-options/>
               </div>
               <div class="col-12">
-                <q-input :readonly="isReadonly" v-model="currentUser.email" label="Email" type="email" outlined dense :rules="[
+                <q-input :readonly="editMode" :disabled="editMode" v-model="user.email" label="Email" type="email" outlined dense :rules="[
                    val => !!val || 'Field is required',
                    val => /.+@.+\..+/.test(val) || 'Invalid email format'
                  ]"/>
               </div>
               <div class="col-12">
-                <q-select v-model="currentUser.roles" :options="roleOptions" :readonly="isReadonly" label="Roles" multiple outlined dense use-chips emit-value map-options/>
+                <q-select v-model="user.user_type" :options="userTypeOptions" label="Type d'utilisateur *" outlined dense emit-value map-options :rules="[val => !!val || 'Le champ est requis']"/>
               </div>
               <div v-if="!editMode" class="col-12">
-                <q-input v-model="currentUser.password" label="Password" type="password" outlined dense
+                <q-input v-model="user.password" label="Password" type="password" outlined dense
                   rules="[val => !!val || 'Field is required']"/>
               </div>
             </div>
 
             <q-card-actions align="right" class="q-mt-md">
-              <q-btn flat label="Cancel" color="negative" v-close-popup />
-              <q-btn type="button" label="Save" color="primary" :disabled="isNormalUser" :loading="loadingButton"  @click.stop = "save(currentUser)"/>
+              <q-btn flat label="annuler" color="negative" v-close-popup />
+              <q-btn type="button" label="enregister" color="primary" :disabled="isNormalUser" :loading="loadingButton"  @click.stop = "save(user)"/>
             </q-card-actions>
           </q-form>
         </q-card-section>
@@ -113,7 +100,7 @@
     <q-dialog v-model="showDetailsDialog">
       <q-card style="min-width: 400px">
         <q-card-section class="row items-center q-pb-none">
-          <div class="text-h6">User Details</div>
+          <div class="text-h6"> Les details de l'utilisateur</div>
           <q-space />
           <q-btn icon="close" flat round dense v-close-popup />
         </q-card-section>
@@ -153,30 +140,28 @@
             </div>
             <div class="col-12">
               <div class="text-caption text-grey">Type</div>
-              <div class="text-body1">{{ selectedUser.type || 'N/A' }}</div>
+              <div class="text-body1">{{ displayUserType(selectedUser.user_type)}}</div>
             </div>
           </div>
         </q-card-section>
       </q-card>
     </q-dialog>
-
-    <!-- Delete Confirmation Dialog -->
     <q-dialog v-model="showDeleteDialog" persistent>
       <q-card>
         <q-card-section class="row items-center">
           <q-avatar icon="warning" color="warning" text-color="white" />
           <span class="q-ml-sm"
-          >Are you sure you want to delete this user?</span
+          >Vous êtes sûr de vouloir effectuer cette action</span
           >
         </q-card-section>
 
         <q-card-actions align="right">
-          <q-btn flat label="Cancel" color="primary" v-close-popup />
-          <q-btn flat label="Delete" :disabled="isNormalUser" color="negative" @click="deleteUser" v-close-popup/>
+          <q-btn flat label="Annuler" color="primary" v-close-popup />
+          <q-btn flat label="Supprimer" :disabled="isNormalUser" color="negative" @click="deleteUser" v-close-popup/>
         </q-card-actions>
       </q-card>
     </q-dialog>
-    <UsersCreatedComponent />
+    <UsersCreatedComponent @created="loadingUsers"/>
   </q-page>
 </template>
 
@@ -208,6 +193,10 @@ export default {
       searchQuery: '',
       roleFilter: [],
       genderFilter: null,
+      userTypeOptions: [
+        { label: 'Administrateur', value: 'admin' },
+        { label: 'Simple utilisateur', value: 'user' }
+      ],
 
       showUserDialog: false,
       showDetailsDialog: false,
@@ -216,6 +205,14 @@ export default {
       editMode: false,
       selectedUser: null,
       currentUser: {
+        firstName: '',
+        lastName: '',
+        gender: 'M',
+        email: '',
+        roles: [],
+        password: '',
+      },
+      user: {
         firstName: '',
         lastName: '',
         gender: 'M',
@@ -239,10 +236,8 @@ export default {
       ],
 
       roleOptions: [
-        { label: 'Admin', value: 'ROLE_ADMIN' },
+        { label: 'Admin', value: 'ROLE_SUPER_ADMIN'},
         { label: 'User', value: 'ROLE_USER' },
-        { label: 'Manager', value: 'ROLE_MANAGER' },
-        { label: 'Editor', value: 'ROLE_EDITOR' },
       ],
 
       columns: [
@@ -258,13 +253,10 @@ export default {
 
   computed: {
     isNormalUser () {
-      if (Array.isArray(this.currentUser.roles) && this.currentUser.roles.includes('ROLE_SUPER_ADMIN')) return false
+      if ((Array.isArray(this.currentUser.roles) && this.currentUser.roles.includes('ROLE_SUPER_ADMIN'))) {
+        return  false
+      }
       return true
-    },
-    isReadonly () {
-      const usersRoles = this.security.getCurrentUser()?.roles ?? ['ROLE_USER']
-      return !(!usersRoles.includes('SUPER_ADMIN') || !usersRoles.includes('CHEF_PROJECT'));
-
     },
     filteredUsers() {
       return this.users.filter(user => {
@@ -299,7 +291,20 @@ export default {
         console.log('error est', error)
       })
     },
-
+    displayUserType (type) {
+      if (!type) return
+      switch (type) {
+        case 'admin':  return 'Administrateur'
+        case 'user':  return 'Simple utilisateur'
+      }
+    },
+    roleUser (role) {
+      if (!['ROLE_SUPER_ADMIN', 'ROLE_USER'].includes(role)) return 'user'
+      switch (role) {
+        case 'ROLE_SUPER_ADMIN': return 'admin'
+        case 'ROLE_USER': return 'user'
+      }
+    },
     createUsers () {
       this.$emitter.emit('user:created')
     },
@@ -338,7 +343,7 @@ export default {
         this.showToasterMessage('Vous avez pas les droits nécessaires pour effectuer cette action', 'negative')
         return
       }
-      this.currentUser = { ...user };
+      this.user = { ...user };
       this.editMode = true;
       this.showUserDialog = true;
     },
