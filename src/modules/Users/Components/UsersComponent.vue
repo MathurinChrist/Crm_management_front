@@ -129,7 +129,7 @@
               <div class="text-caption text-grey">Roles</div>
               <div class="q-gutter-xs">
                 <q-badge
-                  v-for="role in selectedUser.roles"
+                  v-for="role in selectedUser?.roles"
                   :key="role"
                   color="secondary"
                   class="q-px-sm q-py-xs"

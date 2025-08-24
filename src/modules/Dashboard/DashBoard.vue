@@ -170,13 +170,13 @@ export default {
         },
         {
           title: 'Tâches Totales',
-          value: this.totalTasks, // Optionnel: déduit d'autres données
+          value: this.totalTasks,
           color: 'bg-green',
           icon: 'list_alt'
         },
         {
           title: 'Tâches Terminées',
-          value: this.completedTasks, // Optionnel aussi
+          value: this.completedTasks,
           color: 'bg-teal',
           icon: 'check_circle'
         },
@@ -193,7 +193,7 @@ export default {
       return this.projects.reduce((sum, project) => sum + (project.tasks || 0), 0);
     },
     completedTasks() {
-      return this.projects.reduce((sum, project) => sum + (project.completedTasks || 0), 0);
+      return this.projects.reduce((sum, project) => sum + (project?.completedTask || 0), 0);
     },
     totalProjects() {
       return this.projects?.length ?? 0;

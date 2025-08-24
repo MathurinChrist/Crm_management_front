@@ -19,7 +19,7 @@ export const useSecurityStore = defineStore('security', () => {
   function getMe() {
     return new Promise((resolve, reject) => {
       return axiosInstance.get('/user/me').then((data) => {
-        return resolve(data.data)
+        return resolve(data?.data)
       }).catch((error) => {
           return reject(error)
         })
@@ -30,7 +30,7 @@ export const useSecurityStore = defineStore('security', () => {
     return new Promise((resolve, reject) => {
        axiosInstance.post('/user/admin/signIn', payload).then((data) => {
          return resolve(data)
-       }).catch(data => {
+       }).catch((data) => {
          return reject(data)
        })
     })

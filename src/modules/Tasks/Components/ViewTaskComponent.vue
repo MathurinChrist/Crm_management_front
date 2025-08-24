@@ -199,7 +199,6 @@
                 </div>
               </q-tab-panel>
 
-              <!-- Onglet Pièces jointes -->
               <q-tab-panel name="attachments">
                 <div class="attachment-list">
                   <q-list bordered separator class="rounded-borders" v-if="task.attachments.length > 0">
@@ -622,7 +621,7 @@ export default {
         description: '',
         status: 'todo',
         priority: 'medium',
-        dueDate: date.formatDate(Date.now() + 86400000 * 3, 'DD/MM/YYYY'),
+        dueDate: date.formatDate(Date.now(), 'DD/MM/YYYY'),
         createdAt: new Date(),
         createdBy: { id: 1, name: 'Utilisateur' },
         checklist: [],
