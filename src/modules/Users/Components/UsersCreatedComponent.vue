@@ -2,15 +2,27 @@
   <q-dialog v-model="showDialog" persistent>
     <q-card style="min-width: 400px; max-width: 600px">
       <q-card-section class="row items-center q-pb-none">
-        <div class="text-h6">Create New User</div>
+        <div class="text-h6">Créer un nouvel utilisateur</div>
         <q-space />
         <q-btn icon="close" flat round dense v-close-popup />
       </q-card-section>
 
       <q-card-section class="q-pt-none">
-        <q-form @submit.prevent="submitForm" class="q-gutter-md">
-          <q-input v-model="user.firstName" label="First Name *" outlined dense :rules="[val => !!val || 'Field is required']"/>
-          <q-input v-model="user.lastName" label="Last Name *" outlined dense :rules="[val => !!val || 'Field is required']"/>
+        <q-form class="q-gutter-md">
+          <q-input
+            v-model="user.firstName"
+            label="Prénom *"
+            outlined
+            dense
+            :rules="[val => !!val || 'Le champ est requis']"
+          />
+          <q-input
+            v-model="user.lastName"
+            label="Nom *"
+            outlined
+            dense
+            :rules="[val => !!val || 'Le champ est requis']"
+          />
           <q-input
             v-model="user.email"
             label="Email *"
@@ -18,68 +30,26 @@
             outlined
             dense
             :rules="[
-              val => !!val || 'Field is required',
-              val => /.+@.+\..+/.test(val) || 'Email must be valid'
+              val => !!val || 'Le champ est requis',
+              val => /.+@.+\..+/.test(val) || 'Format d’email invalide'
             ]"
           />
 
           <q-select
             v-model="user.gender"
             :options="genderOptions"
-            label="Gender *"
+            label="Genre *"
             outlined
             dense
             emit-value
             map-options
-            :rules="[val => !!val || 'Field is required']"
+            :rules="[val => !!val || 'Le champ est requis']"
           />
-
-          <q-select
-            v-model="user.user_type"
-            :options="userTypeOptions"
-            label="User Type *"
-            outlined
-            dense
-            emit-value
-            map-options
-            :rules="[val => !!val || 'Field is required']"
-          />
-
-          <q-select
-            v-model="user.roles"
-            multiple
-            :options="roleOptions"
-            label="Roles"
-            outlined
-            dense
-            use-chips
-            emit-value
-            map-options
-          />
-
-          <q-input
-            v-model="user.password"
-            label="Password *"
-            :type="isPwdVisible ? 'text' : 'password'"
-            outlined
-            dense
-            :rules="[
-              val => !!val || 'Field is required',
-              val => val.length >= 8 || 'Minimum 8 characters'
-            ]"
-          >
-            <template v-slot:append>
-              <q-icon
-                :name="isPwdVisible ? 'visibility_off' : 'visibility'"
-                class="cursor-pointer"
-                @click="isPwdVisible = !isPwdVisible"
-              />
-            </template>
-          </q-input>
+          <q-select v-model="user.user_type" :options="userTypeOptions" label="Type d'utilisateur *" outlined dense emit-value map-options :rules="[val => !!val || 'Le champ est requis']"/>
 
           <div class="row q-mt-lg justify-end q-gutter-sm">
-            <q-btn label="Cancel" color="grey" v-close-popup flat />
-            <q-btn label="Create" type="submit" color="primary" :loading="loading" />
+            <q-btn label="Annuler" color="grey" v-close-popup flat />
+            <q-btn label="Créer" type="submit" @click="submitForm" color="primary" :loading="loading" />
           </div>
         </q-form>
       </q-card-section>
@@ -89,6 +59,8 @@
 
 <script>
 import { useQuasar } from 'quasar'
+import {useSecurityStore } from "src/modules/security/store/security.js";
+import {useUserStore} from "src/modules/Users/Store/UsersStore.js";
 
 export default {
   props: {
@@ -97,9 +69,14 @@ export default {
       default: false
     }
   },
-
   emits: ['update:show', 'created'],
+  setup() {
+    const $q = useQuasar()
+    const userSecurity = useSecurityStore()
+    const usersStore = useUserStore()
 
+    return { $q, userSecurity, usersStore }
+  },
   data() {
     return {
       showDialog: this.show,
@@ -120,16 +97,21 @@ export default {
         { label: 'Other', value: 'O' }
       ],
       userTypeOptions: [
-        { label: 'Admin', value: 'admin' },
-        { label: 'Editor', value: 'editor' },
-        { label: 'Viewer', value: 'viewer' }
+        { label: 'Administrateur', value: 'admin' },
+        { label: 'Simple utilisateur', value: 'user' }
       ],
       roleOptions: [
-        { label: 'User', value: 'ROLE_USER' },
-        { label: 'Admin', value: 'ROLE_ADMIN' },
-        { label: 'Super Admin', value: 'ROLE_SUPER_ADMIN' }
+        { label: 'Utilisateur', value: 'ROLE_USER' },
+        { label: 'Administrateur', value: 'ROLE_SUPER_ADMIN' }
       ]
     }
+  },
+  mounted() {
+    this.$emitter.on('user:created', this.createUser)
+  },
+  beforeUnmount() {
+    this.$emitter.off('user:created', this.createUser)
+    this.dialog = false
   },
 
   watch: {
@@ -141,12 +123,11 @@ export default {
     }
   },
 
-  setup() {
-    const $q = useQuasar()
-    return { $q }
-  },
-
   methods: {
+    createUser () {
+      this.resetForm()
+      this.showDialog = true
+    },
     resetForm() {
       this.user = {
         firstName: '',
@@ -165,26 +146,15 @@ export default {
       this.resetForm()
     },
 
-    async submitForm() {
+     submitForm() {
       this.loading = true
-      try {
-        this.$q.notify({
-          color: 'positive',
-          message: 'User created successfully',
-          icon: 'check_circle'
-        })
-
-        this.$emit('created', this.user)
-        this.closeDialog()
-      } catch (error) {
-        this.$q.notify({
-          color: 'negative',
-          message: error.response?.data?.message || 'Failed to create user',
-          icon: 'error'
-        })
-      } finally {
-        this.loading = false
-      }
+       this.usersStore.createUser(this.user).then(() => {
+         this.$q.notify({color: 'positive', message: 'Utilisateur crée', con: 'check_circle'})
+         this.$emit('created', this.user)
+         this.closeDialog()
+       }).catch((error) => {
+         this.$q.notify({color: 'negative', message: error.response?.data?.message || 'Création échouée ', icon: 'error'})
+       })
     }
   }
 }

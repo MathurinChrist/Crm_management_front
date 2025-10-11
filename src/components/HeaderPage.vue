@@ -1,7 +1,6 @@
 <template>
   <q-header elevated class="header bg-primary text-white">
     <q-toolbar class="q-py-sm">
-      <!-- Logo avec animation -->
       <div class="logo-container animated fadeIn">
         <AllIcon name="CrmIcon" :size="40" color="white" class="logo-icon" />
         <span class="logo-text text-h5 text-weight-bold q-ml-sm">CRM Pro</span>
@@ -11,14 +10,9 @@
 
       <div class="row items-center q-gutter-sm">
         <q-separator vertical spaced inset />
-        <q-btn-dropdown
-          flat
-          stretch
-          :label="userName"
-          class="animated fadeIn delay-3 user-menu"
-        >
+        <q-btn-dropdown flat stretch :label="userName" class="animated fadeIn delay-3 user-menu">
           <q-list>
-            <q-item clickable v-close-popup>
+            <q-item clickable v-close-popup @click.stop="showUserProfile()">
               <q-item-section avatar>
                 <q-icon name="account_circle" />
               </q-item-section>
@@ -50,7 +44,7 @@
 
 <script>
 import AllIcon from "components/icons/AllIcon.vue"
-import {useSecurityStore} from "src/modules/security/store/security.js";
+import { useSecurityStore } from 'src/modules/security/store/security.js'
 
 export default {
   name: 'HeaderPage',
@@ -71,6 +65,9 @@ export default {
     logout () {
       localStorage.removeItem('token')
       this.$router.push({name: 'login'})
+    },
+    showUserProfile () {
+      this.$emitter.emit('user:info')
     }
   }
 }

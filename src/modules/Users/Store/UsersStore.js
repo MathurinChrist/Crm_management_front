@@ -42,7 +42,18 @@ const users = ref([])
     })
   }
 
+  function createUser (user) {
+    return new Promise((resolve, reject) => {
+      axiosInstance.post('/user/create', user).then((data) => {
+        resolve(data)
+      }).catch((error) => {
+        reject(error)
+      })
+    })
+  }
+
   return {
+    createUser,
     deleteUser,
     getUsers,
     update,

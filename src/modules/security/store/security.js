@@ -17,16 +17,66 @@ export const useSecurityStore = defineStore('security', () => {
   }
 
   function getMe() {
-    return axiosInstance.get('/user/me').then(res => res.data)
+    return new Promise((resolve, reject) => {
+      return axiosInstance.get('/user/me').then((data) => {
+        return resolve(data?.data)
+      }).catch((error) => {
+          return reject(error)
+        })
+    })
   }
 
   function register (payload) {
     return new Promise((resolve, reject) => {
        axiosInstance.post('/user/admin/signIn', payload).then((data) => {
          return resolve(data)
-       }).catch(data => {
+       }).catch((data) => {
          return reject(data)
        })
+    })
+  }
+
+  function changePassword (payload) {
+    return new Promise((resolve, reject) => {
+      axiosInstance.post('/user/forgot-password', payload).then((data) => {
+        return resolve(data.data)
+      }).catch(error => {
+        return reject(error.response.message)
+      })
+    })
+  }
+
+  function resetPassword (passwordForm) {
+    return new Promise((resolve, reject) => {
+      const payload = { password: passwordForm.confirm, oldPassword: passwordForm.current }
+      axiosInstance.post('/user/reset-password', payload).then((data) => {
+        return resolve(data.data)
+      }).catch((error) => {
+        console.log('erreur est donc', error)
+        return reject(error.response.data)
+      })
+    })
+  }
+
+
+  function createUser (payload) {
+    return new Promise((resolve, reject) => {
+      axiosInstance.post('/user/created', payload).then((data) => {
+        return resolve(data)
+      }).catch(data => {
+        return reject(data)
+      })
+    })
+  }
+
+  function updateProfile (payload) {
+    const userId = parseInt(payload.id)
+    return new Promise((resolve, reject) => {
+      axiosInstance.put('/user/update/' + userId, payload).then((data) => {
+        return resolve(data)
+      }).catch(data => {
+        return reject(data)
+      })
     })
   }
 
@@ -47,6 +97,9 @@ export const useSecurityStore = defineStore('security', () => {
   }
 
   return {
+    changePassword,
+    createUser,
+    updateProfile,
     logout,
     register,
     login,
@@ -54,6 +107,7 @@ export const useSecurityStore = defineStore('security', () => {
     setToken,
     getToken,
     setCurrentUser,
+    resetPassword,
     currentUser,
     getCurrentUser
   }

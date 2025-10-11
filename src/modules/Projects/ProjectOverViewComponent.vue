@@ -31,7 +31,7 @@
       <q-card-section>
         <div class="row items-center justify-between">
           <div class="text-h5 text-weight-bold">Tâches du projet</div>
-          <q-btn label="Ajouter une tâche" color="primary" icon="add" @click="addTask" class="animated pulse delay-5s"/>
+          <q-btn label="Ajouter une tâche" color="primary" icon="add" :disabled="isNormalUser" @click="addTask" class="animated pulse delay-5s"/>
         </div>
 
         <q-tabs v-model="taskTab" inline-label class="text-teal q-mt-md" active-color="primary" indicator-color="primary">
@@ -109,6 +109,8 @@
 import {date, useQuasar} from 'quasar'
 import { useProjectStore } from 'src/modules/Projects/store/projectStore.js'
 import { useTaskStore } from 'src/modules/Tasks/Store/TaskStore.js'
+import { useSecurityStore } from "src/modules/security/store/security.js";
+
 import ViewTaskComponent from 'src/modules/Tasks/Components/ViewTaskComponent.vue'
 import TaskCreationComponent from 'src/modules/Tasks/Components/TaskCreationComponent.vue'
 import DeletePopup from 'components/DeletePopupComponent.vue'
@@ -122,9 +124,11 @@ export default {
   setup() {
     const projectStore = useProjectStore()
     const taskStore = useTaskStore()
+    const security = useSecurityStore()
     const quasar = useQuasar()
 
     return {
+      security,
       quasar,
       taskStore,
       projectStore
@@ -132,6 +136,7 @@ export default {
   },
   data() {
     return {
+      currentUser: null,
       taskDeleting: null,
       taskToDelete: null,
       hoveredTaskId: false,
@@ -144,6 +149,10 @@ export default {
     }
   },
   computed: {
+    isNormalUser () {
+      if (Array.isArray(this.currentUser?.roles) && this.currentUser?.roles.includes('ROLE_SUPER_ADMIN')) return false
+      return true
+    },
     projectInfos() {
       return [
         {label: 'Date de création', value: this.formatDate(this.project.createdAt), icon: 'event', color: 'blue'},
@@ -190,6 +199,11 @@ export default {
       })
     },
     addTask() {
+      if (this.isNormalUser) {
+        this.quasar.notify({message: 'Vous avez pas les droits necessaires pour effectuer cette action',type: 'negative', color: 'nagative', icon: 'check_circle', position: 'top-right'})
+        return
+      }
+
       this.$emitter.emit('open:dialog', { name: 'taskDialog' })
     },
     formatDate(d) {
@@ -266,6 +280,10 @@ export default {
     }
   },
   mounted() {
+    this.security.getMe().then(data => {
+      this.currentUser = data.user
+    })
+
     this.project = this.projectStore.getCurrentProject()
     if (this.project?.id) {
       this.showPage = true

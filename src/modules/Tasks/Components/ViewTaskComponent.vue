@@ -86,12 +86,12 @@
                 </q-input>
               </div>
               <div class="col-xs-12 col-sm-6">
-                <q-select v-model="task.priority" :options="priorityOptions" label="Priorité" outlined dense emit-value map-options>
+                <q-select v-model="task.priorityOptions" :options="priorityOptions" label="Priorité" outlined dense emit-value map-options>
                   <template v-slot:selected>
-                    <q-chip dense :color="priorityColors[task.priority]" text-color="white" class="full-width justify-between">
+                    <q-chip dense :color="priorityColors[task.priorityOptions]" text-color="white" class="full-width justify-between">
                       <div class="row items-center">
-                        <q-icon :name="priorityIcons[task.priority]" class="q-mr-xs" />
-                        {{ priorityOptions.find(o => o.value === task.priority)?.label }}
+                        <q-icon :name="priorityIcons[task.priorityOptions]" class="q-mr-xs" />
+                        {{ priorityOptions.find(o => o.value === task.priorityOptions)?.label }}
                       </div>
                       <q-icon name="expand_more" />
                     </q-chip>
@@ -151,8 +151,8 @@
               active-bg-color="primary-1"
             >
               <q-tab name="comments" icon="chat" label="Commentaires" />
-              <q-tab name="attachments" icon="attachment" label="Pièces jointes" />
-              <q-tab name="activity" icon="history" label="Historique" />
+<!--              <q-tab name="attachments" icon="attachment" label="Pièces jointes" />-->
+<!--              <q-tab name="activity" icon="history" label="Historique" />-->
             </q-tabs>
 
             <q-separator class="q-mb-lg" />
@@ -199,7 +199,6 @@
                 </div>
               </q-tab-panel>
 
-              <!-- Onglet Pièces jointes -->
               <q-tab-panel name="attachments">
                 <div class="attachment-list">
                   <q-list bordered separator class="rounded-borders" v-if="task.attachments.length > 0">
@@ -330,7 +329,7 @@ export default {
         context: '',
         description: '',
         status: 'todo',
-        priority: 'medium',
+        priorityOptions: 'medium',
         dueDate: date.formatDate(Date.now() + 86400000 * 3, 'DD/MM/YYYY'),
         createdAt: new Date(),
         createdBy: { id: 1, name: 'Utilisateur' },
@@ -370,7 +369,7 @@ export default {
       ],
       priorityOptions: [
         { label: 'Basse', value: 'low' },
-        { label: 'Moyenne', value: 'medium' },
+        { label: 'Moyenne', value: 'medium'},
         { label: 'Haute', value: 'high' },
         { label: 'Urgente', value: 'critical' }
       ],
@@ -425,9 +424,9 @@ export default {
 
       this.task = {
         ...task,
-        priority: task.priority || "medium",
-        dueDate: task.dueDate || date.formatDate(Date.now() + 86400000 * 3, 'DD/MM/YYYY'),
-        attachments: task.attachments || [
+        priority: task?.priorityOptions || "medium",
+        dueDate: task?.dueDate || date.formatDate(Date.now() + 86400000 * 3, 'DD/MM/YYYY'),
+        attachments: task?.attachments || [
           {
             id: 1,
             name: "maquette-figma.fig",
@@ -454,6 +453,8 @@ export default {
           }
         ]
       }
+
+      console.log('le this.task devient', this.task)
 
       this.showDialog = true
     },
@@ -620,7 +621,7 @@ export default {
         description: '',
         status: 'todo',
         priority: 'medium',
-        dueDate: date.formatDate(Date.now() + 86400000 * 3, 'DD/MM/YYYY'),
+        dueDate: date.formatDate(Date.now(), 'DD/MM/YYYY'),
         createdAt: new Date(),
         createdBy: { id: 1, name: 'Utilisateur' },
         checklist: [],
