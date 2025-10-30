@@ -314,7 +314,7 @@ export default {
       })
       this.loading = true;
       this.userStore.getUsers().then(data => {
-        this.users = data.users
+        this.users = data?.allUsers
         this.editMode = false;
         this.showUserDialog = false;
       }).catch(() => {

@@ -236,7 +236,7 @@ export default {
       }).catch(() => this.isLoading = true)
 
       this.usersStore.getUsers().then((data) => {
-        this.users = data?.users
+        this.users = data?.allUsers
       }).catch(() => this.isLoading = true)
 
       this.isLoading = false

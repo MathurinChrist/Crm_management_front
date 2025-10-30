@@ -2,18 +2,9 @@
   RewriteEngine On
   RewriteBase /
 
-  # Ne pas réécrire index.html
+  # Redirige toutes les requêtes vers index.html
   RewriteRule ^index\.html$ - [L]
-
-  # Ne pas réécrire les fichiers et dossiers existants
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
-
-  # Toutes les autres requêtes vont vers index.html
   RewriteRule . /index.html [L]
 </IfModule>
-
-# Optionnel : protéger le fichier .htaccess
-<Files .htaccess>
-  Require all denied
-</Files>
